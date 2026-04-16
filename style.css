@@ -344,13 +344,13 @@ input { font: inherit; color: inherit; }
 }
 
 /* Qliphoth */
-.node-label.qlp .nl-name { color: rgba(170, 80, 80, 0.7); }
-.node-label.qlp .nl-sub { color: rgba(130, 60, 60, 0.4); }
+.node-label.qlp .nl-name { color: rgba(200, 90, 90, 0.95); }
+.node-label.qlp .nl-sub { color: rgba(170, 80, 80, 0.7); }
 .node-label.qlp.dimmed .nl-name { color: rgba(170, 80, 80, 0.12); }
 
 /* Hidden */
-.node-label.hid .nl-name { color: rgba(100, 140, 180, 0.6); }
-.node-label.hid .nl-sub { color: rgba(80, 120, 160, 0.35); }
+.node-label.hid .nl-name { color: rgba(130, 170, 210, 0.95); }
+.node-label.hid .nl-sub { color: rgba(110, 150, 190, 0.7); }
 .node-label.hid.dimmed .nl-name { color: rgba(100, 140, 180, 0.1); }
 
 /* === PATH LABELS — very subtle === */

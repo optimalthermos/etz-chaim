@@ -321,14 +321,14 @@ function rebuild() {
     for (const s of sefs) {
         const p = pos3(s);
         const isQ = s.id >= 20, isH = s.id >= 11 && s.id < 20, isD = s.id === 10;
-        const sz = s.id === 0 || s.id === 20 ? 0.38 : s.id === 9 || s.id === 29 ? 0.34 : isD ? 0.18 : isH ? 0.22 : isQ ? 0.25 : 0.30;
+        const sz = s.id === 0 || s.id === 20 ? 0.38 : s.id === 9 || s.id === 29 ? 0.34 : isD ? 0.28 : isH ? 0.28 : isQ ? 0.28 : 0.30;
 
         const mesh = new THREE.Mesh(
             new THREE.SphereGeometry(sz, 28, 28),
             new THREE.MeshPhongMaterial({
                 color: s.cl, emissive: s.cl,
-                emissiveIntensity: isQ ? 0.3 : 0.5,
-                transparent: true, opacity: isD ? 0.5 : isH ? 0.55 : isQ ? 0.55 : 0.95,
+                emissiveIntensity: 0.5,
+                transparent: true, opacity: 0.95,
                 shininess: 40
             })
         );
@@ -337,7 +337,7 @@ function rebuild() {
         // Smaller glows
         const glow = new THREE.Mesh(
             new THREE.SphereGeometry(sz * 2, 8, 8),
-            new THREE.MeshBasicMaterial({ color: s.cl, transparent: true, opacity: isQ ? 0.02 : 0.035, side: THREE.BackSide })
+            new THREE.MeshBasicMaterial({ color: s.cl, transparent: true, opacity: 0.035, side: THREE.BackSide })
         );
         glow.position.copy(p); glow.userData = s; group.add(glow); glows.push(glow);
 
@@ -511,8 +511,8 @@ function applyHighlightState() {
     for (let i = 0; i < meshes.length; i++) {
         const m = meshes[i], g = glows[i], s = m.userData;
         if (!active) {
-            m.material.opacity = s.id === 10 ? 0.5 : (s.id >= 11 && s.id < 20) ? 0.55 : (s.id >= 20) ? 0.55 : 0.95;
-            g.material.opacity = (s.id >= 20) ? 0.02 : 0.035;
+            m.material.opacity = 0.95;
+            g.material.opacity = 0.035;
         } else if (isNodeHighlighted(s.id)) {
             m.material.opacity = 1;
             g.material.opacity = 0.08;
@@ -766,7 +766,7 @@ function animate() {
         const d = camera.position.distanceTo(pos3(ld.s));
         const fade = Math.max(0, Math.min(1, 1 - (d - 8) / 28));
         const isQ = ld.s.id >= 20, isH = ld.s.id >= 11 && ld.s.id < 20, isD = ld.s.id === 10;
-        const baseFade = isD ? 0.35 : isH ? 0.5 : isQ ? 0.4 : 0.9;
+        const baseFade = 0.9;
         ld.div.style.opacity = Lb.nlab ? (behind ? 0 : fade * baseFade) : 0;
     }
     for (const pl of pathLabels) {
