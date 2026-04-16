@@ -28,7 +28,31 @@
         <aside id="sidebar">
             <div class="sidebar-header">
                 <h1 class="logo">Etz Chaim</h1>
-                <p class="tagline">The tree alive. Kundalini rising through the central pillar. Energy in every direction.</p>
+                <p class="tagline">Kundalini rising through the central pillar.</p>
+            </div>
+
+            <!-- DETAIL PANEL — always visible, primary info display -->
+            <div id="detail-panel">
+                <div id="detail-empty">
+                    <span class="detail-hint">Hover or click a node to explore</span>
+                </div>
+                <div id="detail-content" class="hidden">
+                    <div id="detail-color-bar"></div>
+                    <div id="detail-name"></div>
+                    <div id="detail-hebrew"></div>
+                    <div id="detail-desc"></div>
+                    <div id="detail-chakra"></div>
+                    <div id="detail-connections"></div>
+                </div>
+            </div>
+
+            <!-- SEARCH -->
+            <div class="section">
+                <div class="search-wrap">
+                    <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="search-input" placeholder="Find a sephirah..." autocomplete="off">
+                </div>
+                <div id="search-results" class="hidden"></div>
             </div>
 
             <div class="section">
@@ -46,7 +70,7 @@
                 <h3 class="section-title">Labels</h3>
                 <div class="btn-row">
                     <button class="toggle-btn on" data-label="nlab">Nodes</button>
-                    <button class="toggle-btn on" data-label="plab">Paths</button>
+                    <button class="toggle-btn" data-label="plab">Paths</button>
                     <button class="toggle-btn" data-label="heb">Hebrew</button>
                 </div>
             </div>
@@ -60,62 +84,67 @@
                 </div>
             </div>
 
-            <div class="section">
-                <h3 class="section-title">Parameters</h3>
-                <div class="param">
-                    <label>Auto Rotation</label>
-                    <div class="param-row">
-                        <input type="range" data-param="rot" min="0" max="1" step="0.05" value="0.12">
-                        <span class="param-val" data-display="rot">0.12</span>
+            <div class="section collapsed" id="params-section">
+                <h3 class="section-title section-toggle" data-toggle="params-section">
+                    Parameters
+                    <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </h3>
+                <div class="section-body">
+                    <div class="param">
+                        <label>Auto Rotation</label>
+                        <div class="param-row">
+                            <input type="range" data-param="rot" min="0" max="1" step="0.05" value="0.12">
+                            <span class="param-val" data-display="rot">0.12</span>
+                        </div>
                     </div>
-                </div>
-                <div class="param">
-                    <label>Prism Radius</label>
-                    <div class="param-row">
-                        <input type="range" data-param="rad" min="1.5" max="6" step="0.1" value="3.5">
-                        <span class="param-val" data-display="rad">3.5</span>
+                    <div class="param">
+                        <label>Prism Radius</label>
+                        <div class="param-row">
+                            <input type="range" data-param="rad" min="1.5" max="6" step="0.1" value="3.5">
+                            <span class="param-val" data-display="rad">3.5</span>
+                        </div>
                     </div>
-                </div>
-                <div class="param">
-                    <label>Pulse</label>
-                    <div class="param-row">
-                        <input type="range" data-param="pul" min="0.2" max="3" step="0.1" value="1.0">
-                        <span class="param-val" data-display="pul">1.0</span>
+                    <div class="param">
+                        <label>Pulse</label>
+                        <div class="param-row">
+                            <input type="range" data-param="pul" min="0.2" max="3" step="0.1" value="1.0">
+                            <span class="param-val" data-display="pul">1.0</span>
+                        </div>
                     </div>
-                </div>
-                <div class="param">
-                    <label>Helix Turns</label>
-                    <div class="param-row">
-                        <input type="range" data-param="hlx" min="1" max="6" step="0.5" value="3">
-                        <span class="param-val" data-display="hlx">3</span>
+                    <div class="param">
+                        <label>Helix Turns</label>
+                        <div class="param-row">
+                            <input type="range" data-param="hlx" min="1" max="6" step="0.5" value="3">
+                            <span class="param-val" data-display="hlx">3</span>
+                        </div>
                     </div>
-                </div>
-                <div class="param">
-                    <label>Flow Speed</label>
-                    <div class="param-row">
-                        <input type="range" data-param="spd" min="0.5" max="4" step="0.1" value="1.5">
-                        <span class="param-val" data-display="spd">1.5</span>
+                    <div class="param">
+                        <label>Flow Speed</label>
+                        <div class="param-row">
+                            <input type="range" data-param="spd" min="0.5" max="4" step="0.1" value="1.5">
+                            <span class="param-val" data-display="spd">1.5</span>
+                        </div>
                     </div>
-                </div>
-                <div class="param">
-                    <label>Kundalini Intensity</label>
-                    <div class="param-row">
-                        <input type="range" data-param="kint" min="0.2" max="3" step="0.1" value="1.5">
-                        <span class="param-val" data-display="kint">1.5</span>
+                    <div class="param">
+                        <label>Kundalini Intensity</label>
+                        <div class="param-row">
+                            <input type="range" data-param="kint" min="0.2" max="3" step="0.1" value="1.5">
+                            <span class="param-val" data-display="kint">1.5</span>
+                        </div>
                     </div>
-                </div>
-                <div class="param">
-                    <label>Kundalini Width</label>
-                    <div class="param-row">
-                        <input type="range" data-param="kwid" min="0.3" max="2" step="0.1" value="0.8">
-                        <span class="param-val" data-display="kwid">0.8</span>
+                    <div class="param">
+                        <label>Kundalini Width</label>
+                        <div class="param-row">
+                            <input type="range" data-param="kwid" min="0.3" max="2" step="0.1" value="0.8">
+                            <span class="param-val" data-display="kwid">0.8</span>
+                        </div>
                     </div>
-                </div>
-                <div class="param">
-                    <label>Bloom Strength</label>
-                    <div class="param-row">
-                        <input type="range" data-param="bloom" min="0" max="3" step="0.1" value="1.2">
-                        <span class="param-val" data-display="bloom">1.2</span>
+                    <div class="param">
+                        <label>Bloom Strength</label>
+                        <div class="param-row">
+                            <input type="range" data-param="bloom" min="0" max="3" step="0.1" value="0.8">
+                            <span class="param-val" data-display="bloom">0.8</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -130,24 +159,13 @@
             </div>
 
             <div class="sidebar-footer">
-                <span>Drag to rotate</span>
-                <span>Scroll to zoom</span>
-                <span>Click a node for info</span>
+                <span>Drag to rotate · Scroll to zoom · Hover for details</span>
             </div>
         </aside>
 
         <main id="canvas-wrap">
             <canvas id="three-canvas"></canvas>
             <div id="labels-container"></div>
-            <div id="info-panel" class="hidden">
-                <button id="info-close" aria-label="Close">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-                <div id="info-title"></div>
-                <div id="info-hebrew"></div>
-                <div id="info-desc"></div>
-                <div id="info-chakra"></div>
-            </div>
         </main>
     </div>
 

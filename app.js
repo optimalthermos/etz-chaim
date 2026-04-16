@@ -6,34 +6,38 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 // ============================================================
 // STATE
 // ============================================================
-const P = { rot: 0.12, rad: 3.5, pul: 1.0, hlx: 3, spd: 1.5, kint: 1.5, kwid: 0.8, bloom: 1.2, flow: 'both' };
+const P = { rot: 0.12, rad: 3.5, pul: 1.0, hlx: 3, spd: 1.5, kint: 1.5, kwid: 0.8, bloom: 0.8, flow: 'both' };
 const Ly = { man: true, hid: true, qlp: true, tun: true, kun: true };
-const Lb = { nlab: true, plab: true, heb: false };
+const Lb = { nlab: true, plab: false, heb: false };
+
+// Hover / selection state
+let hoveredNode = null;   // sefirah data object
+let selectedNode = null;  // locked selection
 
 // ============================================================
-// SEFIROT DATA
+// DATA
 // ============================================================
 const MA = [0, 2 * Math.PI / 3, 4 * Math.PI / 3];
 const QA = [Math.PI / 3, Math.PI, 5 * Math.PI / 3];
 
 const MAN = [
-    { id: 0, nm: "Crown", hb: "Keter", hbh: "כתר", desc: "Divine will — the first emanation, the point before all points. Pure intention without form.", p: "c", y: 6.5, cl: 0xeeddff, chakra: "Sahasrara", chcl: 0xcc88ff },
-    { id: 1, nm: "Wisdom", hb: "Chokmah", hbh: "חכמה", desc: "The first flash of insight — undifferentiated creative force, the father principle.", p: 0, y: 4.5, cl: 0x5588cc },
-    { id: 2, nm: "Understanding", hb: "Binah", hbh: "בינה", desc: "The receiving womb — form giving structure to the flash of Chokmah.", p: 1, y: 4.5, cl: 0xbb2244 },
-    { id: 3, nm: "Mercy", hb: "Chesed", hbh: "חסד", desc: "Boundless love and expansion — the generous outpouring of creative energy.", p: 0, y: 1.5, cl: 0x3377bb },
-    { id: 4, nm: "Severity", hb: "Gevurah", hbh: "גבורה", desc: "Necessary limit — the power of judgment that gives form through constraint.", p: 1, y: 1.5, cl: 0xaa1133 },
-    { id: 5, nm: "Beauty", hb: "Tiferet", hbh: "תפארת", desc: "Heart and harmony — the compassionate center where all forces balance.", p: "c", y: 0, cl: 0xccaa22, chakra: "Anahata", chcl: 0x33cc55 },
-    { id: 6, nm: "Victory", hb: "Netzach", hbh: "נצח", desc: "Endurance and eternity — the force of nature, instinct, and desire.", p: 0, y: -2.5, cl: 0x339944 },
-    { id: 7, nm: "Splendor", hb: "Hod", hbh: "הוד", desc: "Form of thought — intellect, language, and the structure of communication.", p: 1, y: -2.5, cl: 0xcc6622 },
-    { id: 8, nm: "Foundation", hb: "Yesod", hbh: "יסוד", desc: "The channel — the astral bridge between the mental and physical planes.", p: "c", y: -4.5, cl: 0x7744aa, chakra: "Svadhisthana", chcl: 0xff6622 },
-    { id: 9, nm: "Kingdom", hb: "Malkuth", hbh: "מלכות", desc: "Manifest world — the physical realm where all higher forces crystallize.", p: "c", y: -6.5, cl: 0x446633, chakra: "Muladhara", chcl: 0xdd2222 },
-    { id: 10, nm: "Knowledge", hb: "Da'at", hbh: "דעת", desc: "The abyss — the hidden sephirah, gateway between the supernal and the manifest.", p: "c", y: 3.0, cl: 0x888888, chakra: "Ajna", chcl: 0x4444dd },
+    { id: 0, nm: "Crown", hb: "Keter", hbh: "כתר", desc: "Divine will — the first emanation, the point before all points. Pure intention without form.", p: "c", y: 6.5, cl: 0xeeddff, chakra: "Sahasrara (Crown)", chcl: 0xcc88ff, pillar: "Middle" },
+    { id: 1, nm: "Wisdom", hb: "Chokmah", hbh: "חכמה", desc: "The first flash of insight — undifferentiated creative force. The father principle, expansion without limit.", p: 0, y: 4.5, cl: 0x5588cc, pillar: "Right" },
+    { id: 2, nm: "Understanding", hb: "Binah", hbh: "בינה", desc: "The receiving womb — form giving structure to the flash of Chokmah. The mother principle, restriction that creates.", p: 1, y: 4.5, cl: 0xbb2244, pillar: "Left" },
+    { id: 3, nm: "Mercy", hb: "Chesed", hbh: "חסד", desc: "Boundless love and expansion — the generous outpouring of creative energy. Grace without condition.", p: 0, y: 1.5, cl: 0x3377bb, pillar: "Right" },
+    { id: 4, nm: "Severity", hb: "Gevurah", hbh: "גבורה", desc: "Necessary limit — the power of judgment that gives form through constraint. Discipline and strength.", p: 1, y: 1.5, cl: 0xaa1133, pillar: "Left" },
+    { id: 5, nm: "Beauty", hb: "Tiferet", hbh: "תפארת", desc: "Heart and harmony — the compassionate center where all forces balance. The seat of the soul.", p: "c", y: 0, cl: 0xccaa22, chakra: "Anahata (Heart)", chcl: 0x33cc55, pillar: "Middle" },
+    { id: 6, nm: "Victory", hb: "Netzach", hbh: "נצח", desc: "Endurance and eternity — the force of nature, instinct, and desire. Raw emotional drive.", p: 0, y: -2.5, cl: 0x339944, pillar: "Right" },
+    { id: 7, nm: "Splendor", hb: "Hod", hbh: "הוד", desc: "Form of thought — intellect, language, and the structure of communication. Mental clarity.", p: 1, y: -2.5, cl: 0xcc6622, pillar: "Left" },
+    { id: 8, nm: "Foundation", hb: "Yesod", hbh: "יסוד", desc: "The channel — the astral bridge between the mental and physical planes. Dreams and the subconscious.", p: "c", y: -4.5, cl: 0x7744aa, chakra: "Svadhisthana (Sacral)", chcl: 0xff6622, pillar: "Middle" },
+    { id: 9, nm: "Kingdom", hb: "Malkuth", hbh: "מלכות", desc: "Manifest world — the physical realm where all higher forces crystallize into matter.", p: "c", y: -6.5, cl: 0x446633, chakra: "Muladhara (Root)", chcl: 0xdd2222, pillar: "Middle" },
+    { id: 10, nm: "Knowledge", hb: "Da'at", hbh: "דעת", desc: "The abyss — the hidden sephirah, gateway between the supernal triad and the lower tree. Gnosis.", p: "c", y: 3.0, cl: 0x888888, chakra: "Ajna (Third Eye)", chcl: 0x4444dd, pillar: "Middle" },
 ];
 
 const HID = [
-    { id: 11, nm: "Hidden Wisdom", hb: "Chokmah'", hbh: "חכמה׳", desc: "Unseen knowing — wisdom that operates below the threshold of awareness.", p: 2, y: 4.5, cl: 0x335577 },
-    { id: 12, nm: "Hidden Mercy", hb: "Chesed'", hbh: "חסד׳", desc: "Silent grace — love that moves without being recognized or claimed.", p: 2, y: 1.5, cl: 0x224466 },
-    { id: 13, nm: "Hidden Victory", hb: "Netzach'", hbh: "נצח׳", desc: "Quiet endurance — the persistence that continues when all seems lost.", p: 2, y: -2.5, cl: 0x225533 },
+    { id: 11, nm: "Hidden Wisdom", hb: "Chokmah Stumah", hbh: "חכמה׳", desc: "Unseen knowing — wisdom that operates below the threshold of awareness.", p: 2, y: 4.5, cl: 0x335577, pillar: "Back" },
+    { id: 12, nm: "Hidden Mercy", hb: "Chesed Stumah", hbh: "חסד׳", desc: "Silent grace — love that moves without being recognized or claimed.", p: 2, y: 1.5, cl: 0x224466, pillar: "Back" },
+    { id: 13, nm: "Hidden Victory", hb: "Netzach Stumah", hbh: "נצח׳", desc: "Quiet endurance — the persistence that continues when all seems lost.", p: 2, y: -2.5, cl: 0x225533, pillar: "Back" },
 ];
 
 const QLP = [
@@ -66,8 +70,35 @@ const PATHS_DATA = [
 const HPTH = [[0, 11], [11, 12], [12, 5], [12, 13], [13, 8], [13, 9], [11, 1], [11, 2]];
 const QPTH = [[20, 21], [20, 22], [20, 25], [21, 22], [21, 23], [21, 25], [22, 24], [22, 25], [23, 24], [23, 25], [23, 26], [24, 25], [24, 27], [25, 26], [25, 27], [25, 28], [26, 27], [26, 28], [26, 29], [27, 28], [27, 29], [28, 29]];
 const TUNL = [[0, 20], [1, 21], [2, 22], [3, 23], [4, 24], [5, 25], [6, 26], [7, 27], [8, 28], [9, 29]];
-
 const KUNDALINI_COLORS = [0xdd2222, 0xff6622, 0xccaa22, 0x33cc55, 0x4444dd, 0x6622aa, 0xcc88ff];
+
+// ============================================================
+// CONNECTION MAP — which nodes connect to which, and via which paths
+// ============================================================
+function buildConnectionMap() {
+    const map = {};
+    const allNodes = [...MAN, ...HID, ...QLP];
+    for (const n of allNodes) map[n.id] = { paths: [], connected: new Set() };
+
+    for (const pd of PATHS_DATA) {
+        if (map[pd.from]) { map[pd.from].paths.push(pd); map[pd.from].connected.add(pd.to); }
+        if (map[pd.to]) { map[pd.to].paths.push(pd); map[pd.to].connected.add(pd.from); }
+    }
+    for (const h of HPTH) {
+        if (map[h[0]]) map[h[0]].connected.add(h[1]);
+        if (map[h[1]]) map[h[1]].connected.add(h[0]);
+    }
+    for (const q of QPTH) {
+        if (map[q[0]]) map[q[0]].connected.add(q[1]);
+        if (map[q[1]]) map[q[1]].connected.add(q[0]);
+    }
+    for (const t of TUNL) {
+        if (map[t[0]]) map[t[0]].connected.add(t[1]);
+        if (map[t[1]]) map[t[1]].connected.add(t[0]);
+    }
+    return map;
+}
+const connectionMap = buildConnectionMap();
 
 // ============================================================
 // HELPERS
@@ -109,7 +140,6 @@ renderer.setClearColor(0x06060a);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 
-// Post-processing
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloomPass = new UnrealBloomPass(
@@ -118,7 +148,6 @@ const bloomPass = new UnrealBloomPass(
 );
 composer.addPass(bloomPass);
 
-// Lighting
 scene.add(new THREE.AmbientLight(0x111118, 0.6));
 const pointLight = new THREE.PointLight(0xbbaa33, 0.5, 40);
 pointLight.position.set(0, 2, 0);
@@ -128,15 +157,14 @@ const group = new THREE.Group();
 scene.add(group);
 const clock = new THREE.Clock();
 
-// Raycaster for clicking nodes
 const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
+const mouse = new THREE.Vector2(-999, -999);
 
 // ============================================================
 // SCENE STATE
 // ============================================================
 let meshes = [], glows = [], nodeLabels = [], pathLabels = [];
-let pathCurves = [];
+let pathCurves = [], pathLines = [];
 let pathPS, pathParts = [];
 let helixPS, helixParts = [], serpPS, serpParts = [];
 let tunPS, tunParts = [];
@@ -144,37 +172,38 @@ let fieldPS, fieldParts = [];
 let kunPS, kunParts = [];
 let kunGlowMeshes = [];
 let helixCurve, serpCurve;
+let tunnelLines = [];
 
 let drag = false, pointerPrev = { x: 0, y: 0 };
 let ry = 0.4, rx = 0.15, camDist = 24;
 let tRy = 0.4, tRx = 0.15, tDist = 24;
 
 // ============================================================
-// PARTICLE SYSTEM
+// PARTICLE HELPERS
 // ============================================================
 function makePS(count, size, opacity) {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
     geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
-    const mat = new THREE.PointsMaterial({
+    return new THREE.Points(geo, new THREE.PointsMaterial({
         size, vertexColors: true, transparent: true, opacity,
         blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
-    });
-    return new THREE.Points(geo, mat);
+    }));
 }
 
 function makeLine(a, b, color, opacity) {
-    group.add(new THREE.Line(
+    const line = new THREE.Line(
         new THREE.BufferGeometry().setFromPoints([a, b]),
         new THREE.LineBasicMaterial({ color, transparent: true, opacity })
-    ));
+    );
+    group.add(line);
+    return line;
 }
 
 function makeHelix(dir, rScale) {
     const pts = [];
-    const N = 500;
-    for (let i = 0; i < N; i++) {
-        const t = i / N;
+    for (let i = 0; i < 500; i++) {
+        const t = i / 500;
         const y = dir > 0 ? (-6.5 + t * 13) : (6.5 - t * 13);
         const a = dir * t * Math.PI * 2 * P.hlx;
         const r = P.rad * rScale * Math.sin(t * Math.PI);
@@ -190,108 +219,67 @@ function buildKundalini() {
     kunGlowMeshes = [];
     const N = 600;
     const kunPtsL = [], kunPtsR = [], kunPtsC = [];
-    const yBot = -6.5, yTop = 6.5, span = yTop - yBot;
 
     for (let i = 0; i < N; i++) {
-        const t = i / N;
-        const y = yBot + t * span;
+        const t = i / N, y = -6.5 + t * 13;
         kunPtsC.push(new THREE.Vector3(0, y, 0));
-        const coils = 3.5;
-        const angle = t * Math.PI * 2 * coils;
+        const angle = t * Math.PI * 2 * 3.5;
         const r = P.kwid * (0.3 + Math.sin(t * Math.PI) * 0.7);
         kunPtsL.push(new THREE.Vector3(r * Math.cos(angle), y, r * Math.sin(angle)));
         kunPtsR.push(new THREE.Vector3(r * Math.cos(angle + Math.PI), y, r * Math.sin(angle + Math.PI)));
     }
 
     // Sushumna
-    group.add(new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(kunPtsC),
-        new THREE.LineBasicMaterial({ color: 0xffffcc, transparent: true, opacity: 0.08 })
-    ));
+    group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(kunPtsC),
+        new THREE.LineBasicMaterial({ color: 0xffffcc, transparent: true, opacity: 0.06 })));
 
-    // Ida (moon)
-    const idaColors = new Float32Array(N * 3);
-    for (let i = 0; i < N; i++) {
-        const t = i / N;
-        const ci = Math.floor(t * (KUNDALINI_COLORS.length - 1));
-        const ct = t * (KUNDALINI_COLORS.length - 1) - ci;
-        const c1 = new THREE.Color(KUNDALINI_COLORS[ci]);
-        const c2 = new THREE.Color(KUNDALINI_COLORS[Math.min(ci + 1, KUNDALINI_COLORS.length - 1)]);
-        const c = c1.clone().lerp(c2, ct);
-        idaColors[i * 3] = c.r * 0.4;
-        idaColors[i * 3 + 1] = c.g * 0.4;
-        idaColors[i * 3 + 2] = c.b * 0.6;
+    // Ida & Pingala with rainbow gradient
+    for (const [pts, bias] of [[kunPtsL, [0.4, 0.4, 0.6]], [kunPtsR, [0.6, 0.4, 0.4]]]) {
+        const colors = new Float32Array(N * 3);
+        for (let i = 0; i < N; i++) {
+            const t = i / N;
+            const ci = Math.floor(t * (KUNDALINI_COLORS.length - 1));
+            const ct = t * (KUNDALINI_COLORS.length - 1) - ci;
+            const c1 = new THREE.Color(KUNDALINI_COLORS[ci]);
+            const c2 = new THREE.Color(KUNDALINI_COLORS[Math.min(ci + 1, KUNDALINI_COLORS.length - 1)]);
+            const c = c1.clone().lerp(c2, ct);
+            colors[i * 3] = c.r * bias[0]; colors[i * 3 + 1] = c.g * bias[1]; colors[i * 3 + 2] = c.b * bias[2];
+        }
+        const geo = new THREE.BufferGeometry().setFromPoints(pts);
+        geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        group.add(new THREE.Line(geo, new THREE.LineBasicMaterial({
+            vertexColors: true, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending
+        })));
     }
-    const idaGeo = new THREE.BufferGeometry().setFromPoints(kunPtsL);
-    idaGeo.setAttribute('color', new THREE.BufferAttribute(idaColors, 3));
-    group.add(new THREE.Line(idaGeo, new THREE.LineBasicMaterial({
-        vertexColors: true, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending
-    })));
 
-    // Pingala (sun)
-    const pingColors = new Float32Array(N * 3);
-    for (let i = 0; i < N; i++) {
-        const t = i / N;
-        const ci = Math.floor(t * (KUNDALINI_COLORS.length - 1));
-        const ct = t * (KUNDALINI_COLORS.length - 1) - ci;
-        const c1 = new THREE.Color(KUNDALINI_COLORS[ci]);
-        const c2 = new THREE.Color(KUNDALINI_COLORS[Math.min(ci + 1, KUNDALINI_COLORS.length - 1)]);
-        const c = c1.clone().lerp(c2, ct);
-        pingColors[i * 3] = c.r * 0.6;
-        pingColors[i * 3 + 1] = c.g * 0.4;
-        pingColors[i * 3 + 2] = c.b * 0.4;
-    }
-    const pingGeo = new THREE.BufferGeometry().setFromPoints(kunPtsR);
-    pingGeo.setAttribute('color', new THREE.BufferAttribute(pingColors, 3));
-    group.add(new THREE.Line(pingGeo, new THREE.LineBasicMaterial({
-        vertexColors: true, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending
-    })));
-
-    // Chakra rings & glows
+    // Chakra rings
     const chakras = [
-        { y: -6.5, cl: 0xdd2222, nm: "Muladhara — Root" },
-        { y: -4.5, cl: 0xff6622, nm: "Svadhisthana — Sacral" },
-        { y: -1.5, cl: 0xddcc22, nm: "Manipura — Solar Plexus" },
-        { y: 0, cl: 0x33cc55, nm: "Anahata — Heart" },
-        { y: 1.5, cl: 0x3388dd, nm: "Vishuddha — Throat" },
-        { y: 3.0, cl: 0x4422aa, nm: "Ajna — Third Eye" },
-        { y: 6.5, cl: 0xcc88ff, nm: "Sahasrara — Crown" },
+        { y: -6.5, cl: 0xdd2222 }, { y: -4.5, cl: 0xff6622 }, { y: -1.5, cl: 0xddcc22 },
+        { y: 0, cl: 0x33cc55 }, { y: 1.5, cl: 0x3388dd }, { y: 3.0, cl: 0x4422aa }, { y: 6.5, cl: 0xcc88ff },
     ];
     for (const ch of chakras) {
-        const tGeo = new THREE.TorusGeometry(P.kwid * 1.2, 0.06, 8, 32);
-        const tMat = new THREE.MeshBasicMaterial({
-            color: ch.cl, transparent: true, opacity: 0.18,
-            blending: THREE.AdditiveBlending
-        });
-        const torus = new THREE.Mesh(tGeo, tMat);
-        torus.position.set(0, ch.y, 0);
-        torus.rotation.x = Math.PI / 2;
-        torus.userData = { chakra: ch };
-        group.add(torus);
-        kunGlowMeshes.push(torus);
+        const torus = new THREE.Mesh(
+            new THREE.TorusGeometry(P.kwid * 1.2, 0.05, 8, 32),
+            new THREE.MeshBasicMaterial({ color: ch.cl, transparent: true, opacity: 0.14, blending: THREE.AdditiveBlending })
+        );
+        torus.position.set(0, ch.y, 0); torus.rotation.x = Math.PI / 2;
+        torus.userData = { chakra: ch }; group.add(torus); kunGlowMeshes.push(torus);
 
-        const sGeo = new THREE.SphereGeometry(P.kwid * 0.8, 12, 12);
-        const sMat = new THREE.MeshBasicMaterial({
-            color: ch.cl, transparent: true, opacity: 0.05, side: THREE.BackSide
-        });
-        const sph = new THREE.Mesh(sGeo, sMat);
-        sph.position.set(0, ch.y, 0);
-        sph.userData = { chakra: ch };
-        group.add(sph);
-        kunGlowMeshes.push(sph);
+        const sph = new THREE.Mesh(
+            new THREE.SphereGeometry(P.kwid * 0.6, 10, 10),
+            new THREE.MeshBasicMaterial({ color: ch.cl, transparent: true, opacity: 0.03, side: THREE.BackSide })
+        );
+        sph.position.set(0, ch.y, 0); sph.userData = { chakra: ch }; group.add(sph); kunGlowMeshes.push(sph);
     }
 
-    // Kundalini particles
-    const kCount = 180;
-    kunPS = makePS(kCount, 0.12, 0.95);
-    group.add(kunPS);
+    // Particles
+    const kCount = 150;
+    kunPS = makePS(kCount, 0.1, 0.9); group.add(kunPS);
     kunParts = [];
     for (let i = 0; i < kCount; i++) {
         kunParts.push({
-            t: Math.random(),
-            spd: (0.001 + Math.random() * 0.003) * P.spd,
-            channel: Math.random() < 0.33 ? 'ida' : Math.random() < 0.5 ? 'pingala' : 'sushumna',
-            idx: i
+            t: Math.random(), spd: (0.001 + Math.random() * 0.003) * P.spd,
+            channel: Math.random() < 0.33 ? 'ida' : Math.random() < 0.5 ? 'pingala' : 'sushumna', idx: i
         });
     }
 }
@@ -303,86 +291,64 @@ function rebuild() {
     while (group.children.length) group.remove(group.children[0]);
     labelsEl.innerHTML = '';
     meshes = []; glows = []; nodeLabels = []; pathLabels = [];
-    pathCurves = []; pathParts = []; helixParts = []; serpParts = [];
+    pathCurves = []; pathLines = []; pathParts = []; helixParts = []; serpParts = [];
     tunParts = []; fieldParts = []; kunParts = []; kunGlowMeshes = [];
+    tunnelLines = [];
 
     const sefs = allSefirot();
 
-    // Pillar axes
+    // Pillar axes — very subtle
     for (let i = 0; i < 3; i++) {
         makeLine(
             new THREE.Vector3(P.rad * Math.cos(MA[i]), -8, P.rad * Math.sin(MA[i])),
             new THREE.Vector3(P.rad * Math.cos(MA[i]), 8, P.rad * Math.sin(MA[i])),
-            [0x1a2244, 0x441122, 0x1a3322][i], 0.06
+            [0x1a2244, 0x441122, 0x1a3322][i], 0.04
         );
     }
+    makeLine(new THREE.Vector3(0, -8, 0), new THREE.Vector3(0, 8, 0), 0x222211, 0.03);
+
     if (Ly.qlp) {
         for (let i = 0; i < 3; i++) {
             makeLine(
                 new THREE.Vector3(P.rad * Math.cos(QA[i]), -8, P.rad * Math.sin(QA[i])),
                 new THREE.Vector3(P.rad * Math.cos(QA[i]), 8, P.rad * Math.sin(QA[i])),
-                0x220808, 0.04
+                0x220808, 0.03
             );
         }
     }
-    makeLine(new THREE.Vector3(0, -8, 0), new THREE.Vector3(0, 8, 0), 0x222211, 0.04);
 
-    // Cross-braces
-    if (Ly.qlp) {
-        for (const yy of [6.5, 0, -6.5]) {
-            for (let i = 0; i < 3; i++) {
-                const j = (i + 1) % 3;
-                makeLine(
-                    new THREE.Vector3(P.rad * Math.cos(MA[i]), yy, P.rad * Math.sin(MA[i])),
-                    new THREE.Vector3(P.rad * Math.cos(MA[j]), yy, P.rad * Math.sin(MA[j])),
-                    0x1a2233, 0.03
-                );
-                makeLine(
-                    new THREE.Vector3(P.rad * Math.cos(QA[i]), yy, P.rad * Math.sin(QA[i])),
-                    new THREE.Vector3(P.rad * Math.cos(QA[j]), yy, P.rad * Math.sin(QA[j])),
-                    0x331111, 0.03
-                );
-            }
-        }
-    }
-
-    // Sefirot spheres + labels
+    // Sefirot
     for (const s of sefs) {
         const p = pos3(s);
         const isQ = s.id >= 20, isH = s.id >= 11 && s.id < 20, isD = s.id === 10;
-        const sz = s.id === 0 || s.id === 20 ? 0.42 : s.id === 9 || s.id === 29 ? 0.38 : isD ? 0.2 : isH ? 0.24 : isQ ? 0.28 : 0.33;
+        const sz = s.id === 0 || s.id === 20 ? 0.38 : s.id === 9 || s.id === 29 ? 0.34 : isD ? 0.18 : isH ? 0.22 : isQ ? 0.25 : 0.30;
 
         const mesh = new THREE.Mesh(
             new THREE.SphereGeometry(sz, 28, 28),
             new THREE.MeshPhongMaterial({
                 color: s.cl, emissive: s.cl,
-                emissiveIntensity: isQ ? 0.4 : 0.6,
-                transparent: true, opacity: isD ? 0.5 : isH ? 0.6 : isQ ? 0.6 : 1,
+                emissiveIntensity: isQ ? 0.3 : 0.5,
+                transparent: true, opacity: isD ? 0.5 : isH ? 0.55 : isQ ? 0.55 : 0.95,
                 shininess: 40
             })
         );
-        mesh.position.copy(p);
-        mesh.userData = s;
-        group.add(mesh);
-        meshes.push(mesh);
+        mesh.position.copy(p); mesh.userData = s; group.add(mesh); meshes.push(mesh);
 
+        // Smaller glows
         const glow = new THREE.Mesh(
-            new THREE.SphereGeometry(sz * 2.8, 10, 10),
-            new THREE.MeshBasicMaterial({ color: s.cl, transparent: true, opacity: isQ ? 0.025 : 0.05, side: THREE.BackSide })
+            new THREE.SphereGeometry(sz * 2, 8, 8),
+            new THREE.MeshBasicMaterial({ color: s.cl, transparent: true, opacity: isQ ? 0.02 : 0.035, side: THREE.BackSide })
         );
-        glow.position.copy(p);
-        glow.userData = s;
-        group.add(glow);
-        glows.push(glow);
+        glow.position.copy(p); glow.userData = s; group.add(glow); glows.push(glow);
 
-        // HTML label
+        // Label — name only, no description
         const cls = isQ ? 'node-label qlp' : isH ? 'node-label hid' : 'node-label';
         const div = document.createElement('div');
         div.className = cls;
-        const line1 = Lb.heb ? (s.hbh || s.hb) : s.nm;
-        const line2 = Lb.heb ? s.hb : s.hb;
-        const line3 = s.desc ? s.desc.split('—')[0].trim() : '';
-        div.innerHTML = `<div class="nl-name">${line1}</div><div class="nl-hebrew">${line2}</div><div class="nl-desc">${line3}</div>`;
+        div.dataset.nodeId = s.id;
+        const nameText = Lb.heb ? (s.hbh || s.hb) : s.nm;
+        const subText = Lb.heb ? s.nm : s.hb;
+        div.innerHTML = `<div class="nl-name">${nameText}</div><div class="nl-sub">${subText}</div>`;
         labelsEl.appendChild(div);
         nodeLabels.push({ div, s });
     }
@@ -395,23 +361,29 @@ function rebuild() {
         const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
         mid.x *= 0.88; mid.z *= 0.88;
         const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
-        group.add(new THREE.Line(
+        const line = new THREE.Line(
             new THREE.BufferGeometry().setFromPoints(curve.getPoints(24)),
             new THREE.LineBasicMaterial({
                 color: new THREE.Color(s1.cl).lerp(new THREE.Color(s2.cl), 0.5),
-                transparent: true, opacity: 0.16
+                transparent: true, opacity: 0.12
             })
-        ));
+        );
+        line.userData = { from: pd.from, to: pd.to };
+        group.add(line);
         pathCurves.push({ curve, s1, s2, pd });
+        pathLines.push(line);
 
+        // Path label
         const ldiv = document.createElement('div');
         ldiv.className = 'path-label';
+        ldiv.dataset.pathFrom = pd.from;
+        ldiv.dataset.pathTo = pd.to;
         const pLabel = Lb.heb
             ? `<div class="pl-letter">${pd.let}</div><div class="pl-name">${pd.nm}</div>`
             : `<div class="pl-letter">${pd.mn}</div><div class="pl-name">${pd.nm}</div>`;
         ldiv.innerHTML = pLabel;
         labelsEl.appendChild(ldiv);
-        pathLabels.push({ div: ldiv, curve });
+        pathLabels.push({ div: ldiv, curve, pd });
     }
 
     // Hidden paths
@@ -423,11 +395,14 @@ function rebuild() {
             const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
             mid.x *= 0.88; mid.z *= 0.88;
             const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
-            group.add(new THREE.Line(
+            const line = new THREE.Line(
                 new THREE.BufferGeometry().setFromPoints(curve.getPoints(20)),
-                new THREE.LineBasicMaterial({ color: 0x334455, transparent: true, opacity: 0.08 })
-            ));
+                new THREE.LineBasicMaterial({ color: 0x334455, transparent: true, opacity: 0.06 })
+            );
+            line.userData = { from: h[0], to: h[1] };
+            group.add(line);
             pathCurves.push({ curve, s1: byId(h[0]), s2: byId(h[1]) });
+            pathLines.push(line);
         }
     }
 
@@ -440,11 +415,14 @@ function rebuild() {
             const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
             mid.x *= 0.88; mid.z *= 0.88;
             const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
-            group.add(new THREE.Line(
+            const line = new THREE.Line(
                 new THREE.BufferGeometry().setFromPoints(curve.getPoints(20)),
-                new THREE.LineBasicMaterial({ color: 0x331111, transparent: true, opacity: 0.05 })
-            ));
+                new THREE.LineBasicMaterial({ color: 0x331111, transparent: true, opacity: 0.04 })
+            );
+            line.userData = { from: q[0], to: q[1] };
+            group.add(line);
             pathCurves.push({ curve, s1: byId(q[0]), s2: byId(q[1]) });
+            pathLines.push(line);
         }
     }
 
@@ -453,101 +431,209 @@ function rebuild() {
         for (const t of TUNL) {
             const s1 = byId(t[0]), s2 = byId(t[1]);
             if (!s1 || !s2) continue;
-            makeLine(pos3(s1), pos3(s2), 0x553322, 0.08);
+            const line = makeLine(pos3(s1), pos3(s2), 0x553322, 0.06);
+            line.userData = { from: t[0], to: t[1] };
+            tunnelLines.push(line);
         }
     }
 
     // Path particles
-    const ppd = 8;
-    pathPS = makePS(pathCurves.length * ppd, 0.08, 0.85);
-    group.add(pathPS);
+    const ppd = 6;
+    pathPS = makePS(pathCurves.length * ppd, 0.07, 0.8); group.add(pathPS);
     for (let pi = 0; pi < pathCurves.length; pi++) {
         for (let i = 0; i < ppd; i++) {
             pathParts.push({ pi, t: Math.random(), dir: Math.random() > 0.5 ? 1 : -1, spd: (0.001 + Math.random() * 0.004) * P.spd, idx: pathParts.length });
         }
     }
 
-    // Helix (lightning)
+    // Helices
     helixCurve = makeHelix(-1, 0.6);
-    group.add(new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(helixCurve.getPoints(400)),
-        new THREE.LineBasicMaterial({ color: 0xffcc33, transparent: true, opacity: 0.14, blending: THREE.AdditiveBlending })
-    ));
-    const hpd = 80;
-    helixPS = makePS(hpd, 0.1, 0.9);
-    group.add(helixPS);
-    for (let i = 0; i < hpd; i++) helixParts.push({ t: Math.random(), spd: (0.001 + Math.random() * 0.003) * P.spd, idx: i });
+    group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(helixCurve.getPoints(400)),
+        new THREE.LineBasicMaterial({ color: 0xffcc33, transparent: true, opacity: 0.1, blending: THREE.AdditiveBlending })));
+    helixPS = makePS(60, 0.09, 0.85); group.add(helixPS);
+    for (let i = 0; i < 60; i++) helixParts.push({ t: Math.random(), spd: (0.001 + Math.random() * 0.003) * P.spd, idx: i });
 
-    // Serpent
     serpCurve = makeHelix(1, 0.5);
-    group.add(new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(serpCurve.getPoints(400)),
-        new THREE.LineBasicMaterial({ color: 0x8844cc, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending })
-    ));
-    serpPS = makePS(hpd, 0.09, 0.8);
-    group.add(serpPS);
-    for (let i = 0; i < hpd; i++) serpParts.push({ t: Math.random(), spd: (0.0008 + Math.random() * 0.0025) * P.spd, idx: i });
+    group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(serpCurve.getPoints(400)),
+        new THREE.LineBasicMaterial({ color: 0x8844cc, transparent: true, opacity: 0.08, blending: THREE.AdditiveBlending })));
+    serpPS = makePS(60, 0.08, 0.75); group.add(serpPS);
+    for (let i = 0; i < 60; i++) serpParts.push({ t: Math.random(), spd: (0.0008 + Math.random() * 0.0025) * P.spd, idx: i });
 
     // Tunnel particles
     if (Ly.tun && Ly.qlp) {
-        const tpd = 15;
-        tunPS = makePS(TUNL.length * tpd, 0.07, 0.7);
-        group.add(tunPS);
+        tunPS = makePS(TUNL.length * 12, 0.06, 0.6); group.add(tunPS);
         for (let ti = 0; ti < TUNL.length; ti++) {
-            for (let i = 0; i < tpd; i++) {
+            for (let i = 0; i < 12; i++) {
                 tunParts.push({ ti, t: Math.random(), dir: Math.random() > 0.5 ? 1 : -1, spd: (0.002 + Math.random() * 0.006) * P.spd, idx: tunParts.length });
             }
         }
     } else tunPS = null;
 
-    // Field particles (ambient)
-    const fpd = 180;
-    fieldPS = makePS(fpd, 0.04, 0.35);
-    group.add(fieldPS);
-    for (let i = 0; i < fpd; i++) {
+    // Field
+    fieldPS = makePS(120, 0.035, 0.25); group.add(fieldPS);
+    for (let i = 0; i < 120; i++) {
         fieldParts.push({
-            theta: Math.random() * Math.PI * 2,
-            phi: (Math.random() - 0.5) * Math.PI,
+            theta: Math.random() * Math.PI * 2, phi: (Math.random() - 0.5) * Math.PI,
             r: P.rad * 0.5 + Math.random() * P.rad * 1.2,
-            ts: (Math.random() - 0.5) * 0.008 * P.spd,
-            ps: (Math.random() - 0.5) * 0.003 * P.spd,
-            yO: (Math.random() - 0.5) * 14,
-            ys: (Math.random() - 0.5) * 0.005 * P.spd,
-            idx: i
+            ts: (Math.random() - 0.5) * 0.008 * P.spd, ps: (Math.random() - 0.5) * 0.003 * P.spd,
+            yO: (Math.random() - 0.5) * 14, ys: (Math.random() - 0.5) * 0.005 * P.spd, idx: i
         });
     }
 
-    // Kundalini
     if (Ly.kun) buildKundalini();
-    else { kunPS = null; }
+    else kunPS = null;
 }
 
 // ============================================================
-// ANIMATION LOOP
+// HOVER / HIGHLIGHT SYSTEM
+// ============================================================
+function getActiveNode() { return hoveredNode || selectedNode; }
+
+function isNodeHighlighted(nodeId) {
+    const active = getActiveNode();
+    if (!active) return false;
+    if (nodeId === active.id) return true;
+    const conn = connectionMap[active.id];
+    return conn && conn.connected.has(nodeId);
+}
+
+function isPathHighlighted(fromId, toId) {
+    const active = getActiveNode();
+    if (!active) return false;
+    return (fromId === active.id || toId === active.id);
+}
+
+function applyHighlightState() {
+    const active = getActiveNode();
+    const dimFactor = active ? 0.15 : 1;
+
+    // 3D meshes
+    for (let i = 0; i < meshes.length; i++) {
+        const m = meshes[i], g = glows[i], s = m.userData;
+        if (!active) {
+            m.material.opacity = s.id === 10 ? 0.5 : (s.id >= 11 && s.id < 20) ? 0.55 : (s.id >= 20) ? 0.55 : 0.95;
+            g.material.opacity = (s.id >= 20) ? 0.02 : 0.035;
+        } else if (isNodeHighlighted(s.id)) {
+            m.material.opacity = 1;
+            g.material.opacity = 0.08;
+        } else {
+            m.material.opacity = 0.08;
+            g.material.opacity = 0.005;
+        }
+    }
+
+    // Path lines
+    for (const line of pathLines) {
+        const { from, to } = line.userData;
+        if (!active) {
+            line.material.opacity = 0.12;
+        } else if (isPathHighlighted(from, to)) {
+            line.material.opacity = 0.4;
+        } else {
+            line.material.opacity = 0.02;
+        }
+    }
+
+    // Tunnel lines
+    for (const line of tunnelLines) {
+        const { from, to } = line.userData;
+        if (!active) {
+            line.material.opacity = 0.06;
+        } else if (isPathHighlighted(from, to)) {
+            line.material.opacity = 0.25;
+        } else {
+            line.material.opacity = 0.01;
+        }
+    }
+
+    // HTML labels
+    for (const ld of nodeLabels) {
+        if (!active) {
+            ld.div.classList.remove('dimmed', 'highlighted');
+        } else if (isNodeHighlighted(ld.s.id)) {
+            ld.div.classList.remove('dimmed');
+            ld.div.classList.add('highlighted');
+        } else {
+            ld.div.classList.add('dimmed');
+            ld.div.classList.remove('highlighted');
+        }
+    }
+
+    // Path labels
+    for (const pl of pathLabels) {
+        if (!active) {
+            pl.div.classList.remove('dimmed', 'highlighted');
+        } else if (pl.pd && isPathHighlighted(pl.pd.from, pl.pd.to)) {
+            pl.div.classList.remove('dimmed');
+            pl.div.classList.add('highlighted');
+        } else {
+            pl.div.classList.add('dimmed');
+            pl.div.classList.remove('highlighted');
+        }
+    }
+}
+
+// ============================================================
+// DETAIL PANEL
+// ============================================================
+function showDetail(s) {
+    document.getElementById('detail-empty').style.display = 'none';
+    document.getElementById('detail-content').classList.remove('hidden');
+    document.getElementById('detail-color-bar').style.background = '#' + s.cl.toString(16).padStart(6, '0');
+    document.getElementById('detail-name').textContent = s.nm;
+    document.getElementById('detail-hebrew').textContent = `${s.hbh || ''} — ${s.hb}`;
+    document.getElementById('detail-desc').textContent = s.desc || '';
+    document.getElementById('detail-chakra').textContent = s.chakra ? `Chakra: ${s.chakra}` : '';
+
+    // Show connections
+    const conn = connectionMap[s.id];
+    if (conn && conn.connected.size > 0) {
+        const names = [...conn.connected].map(id => {
+            const n = byId(id);
+            return n ? `<span data-node-id="${id}">${n.nm}</span>` : '';
+        }).filter(Boolean).join(' ');
+        document.getElementById('detail-connections').innerHTML = `Connected to: ${names}`;
+
+        // Click on connection names
+        document.querySelectorAll('#detail-connections span[data-node-id]').forEach(el => {
+            el.addEventListener('click', () => {
+                const n = byId(parseInt(el.dataset.nodeId));
+                if (n) { selectedNode = n; hoveredNode = null; showDetail(n); applyHighlightState(); }
+            });
+        });
+    } else {
+        document.getElementById('detail-connections').innerHTML = '';
+    }
+}
+
+function clearDetail() {
+    document.getElementById('detail-empty').style.display = 'flex';
+    document.getElementById('detail-content').classList.add('hidden');
+}
+
+// ============================================================
+// ANIMATION
 // ============================================================
 function animate() {
     requestAnimationFrame(animate);
     const t = clock.getElapsedTime();
 
-    // Camera
     if (!drag) tRy += P.rot * 0.008;
     ry += (tRy - ry) * 0.06;
     rx += (tRx - rx) * 0.06;
     camDist += (tDist - camDist) * 0.06;
-    camera.position.set(
-        Math.sin(ry) * Math.cos(rx) * camDist,
-        Math.sin(rx) * camDist,
-        Math.cos(ry) * Math.cos(rx) * camDist
-    );
+    camera.position.set(Math.sin(ry) * Math.cos(rx) * camDist, Math.sin(rx) * camDist, Math.cos(ry) * Math.cos(rx) * camDist);
     camera.lookAt(0, 0, 0);
 
     // Pulse sefirot
     for (let i = 0; i < meshes.length; i++) {
         const m = meshes[i], g = glows[i], s = m.userData;
         const b = Math.sin(t * P.pul + s.id * 0.55) * 0.5 + 0.5;
-        m.scale.setScalar(1 + b * 0.25);
-        g.scale.setScalar(1 + b * 0.5);
-        m.material.emissiveIntensity = 0.3 + b * 0.6;
+        const isActive = getActiveNode() && s.id === getActiveNode().id;
+        const pulseScale = isActive ? 1 + b * 0.4 : 1 + b * 0.15;
+        m.scale.setScalar(pulseScale);
+        g.scale.setScalar(1 + b * 0.3);
+        m.material.emissiveIntensity = isActive ? 0.5 + b * 0.8 : 0.25 + b * 0.4;
     }
 
     // Path particles
@@ -555,213 +641,142 @@ function animate() {
         const pos = pathPS.geometry.attributes.position.array;
         const col = pathPS.geometry.attributes.color.array;
         for (const fp of pathParts) {
-            fp.t += fp.spd * fp.dir;
-            if (fp.t > 1) fp.t = 0;
-            if (fp.t < 0) fp.t = 1;
-            const pc = pathCurves[fp.pi];
-            if (!pc) continue;
+            fp.t += fp.spd * fp.dir; if (fp.t > 1) fp.t = 0; if (fp.t < 0) fp.t = 1;
+            const pc = pathCurves[fp.pi]; if (!pc) continue;
             const pt = pc.curve.getPointAt(Math.max(0.001, Math.min(0.999, fp.t)));
-            pos[fp.idx * 3] = pt.x;
-            pos[fp.idx * 3 + 1] = pt.y;
-            pos[fp.idx * 3 + 2] = pt.z;
+            pos[fp.idx * 3] = pt.x; pos[fp.idx * 3 + 1] = pt.y; pos[fp.idx * 3 + 2] = pt.z;
             const c1 = new THREE.Color(pc.s1.cl), c2 = new THREE.Color(pc.s2.cl);
             const c = c1.clone().lerp(c2, fp.t);
             const f = Math.sin(fp.t * Math.PI);
-            col[fp.idx * 3] = c.r * f;
-            col[fp.idx * 3 + 1] = c.g * f;
-            col[fp.idx * 3 + 2] = c.b * f;
+            const active = getActiveNode();
+            const dimmed = active && !isPathHighlighted(pc.s1.id, pc.s2.id);
+            const mul = dimmed ? 0.1 : 1;
+            col[fp.idx * 3] = c.r * f * mul; col[fp.idx * 3 + 1] = c.g * f * mul; col[fp.idx * 3 + 2] = c.b * f * mul;
         }
         pathPS.geometry.attributes.position.needsUpdate = true;
         pathPS.geometry.attributes.color.needsUpdate = true;
     }
 
-    // Lightning helix
+    // Helix
     const showL = P.flow !== 'serp';
     if (helixPS) {
-        const pos = helixPS.geometry.attributes.position.array;
-        const col = helixPS.geometry.attributes.color.array;
+        const pos = helixPS.geometry.attributes.position.array, col = helixPS.geometry.attributes.color.array;
         for (const hp of helixParts) {
-            hp.t += hp.spd;
-            if (hp.t > 1) hp.t = 0;
+            hp.t += hp.spd; if (hp.t > 1) hp.t = 0;
             const pt = helixCurve.getPointAt(Math.max(0.001, Math.min(0.999, hp.t)));
-            pos[hp.idx * 3] = pt.x;
-            pos[hp.idx * 3 + 1] = pt.y;
-            pos[hp.idx * 3 + 2] = pt.z;
+            pos[hp.idx * 3] = pt.x; pos[hp.idx * 3 + 1] = pt.y; pos[hp.idx * 3 + 2] = pt.z;
             const f = showL ? Math.sin(hp.t * Math.PI) : 0;
             const p = 0.7 + Math.sin(t * 3 + hp.t * 20) * 0.3;
-            col[hp.idx * 3] = f * p;
-            col[hp.idx * 3 + 1] = 0.8 * f * p;
-            col[hp.idx * 3 + 2] = 0.2 * f * p;
+            col[hp.idx * 3] = f * p; col[hp.idx * 3 + 1] = 0.8 * f * p; col[hp.idx * 3 + 2] = 0.2 * f * p;
         }
-        helixPS.geometry.attributes.position.needsUpdate = true;
-        helixPS.geometry.attributes.color.needsUpdate = true;
+        helixPS.geometry.attributes.position.needsUpdate = true; helixPS.geometry.attributes.color.needsUpdate = true;
     }
 
-    // Serpent helix
     const showS = P.flow !== 'light';
     if (serpPS) {
-        const pos = serpPS.geometry.attributes.position.array;
-        const col = serpPS.geometry.attributes.color.array;
+        const pos = serpPS.geometry.attributes.position.array, col = serpPS.geometry.attributes.color.array;
         for (const sp of serpParts) {
-            sp.t += sp.spd;
-            if (sp.t > 1) sp.t = 0;
+            sp.t += sp.spd; if (sp.t > 1) sp.t = 0;
             const pt = serpCurve.getPointAt(Math.max(0.001, Math.min(0.999, sp.t)));
-            pos[sp.idx * 3] = pt.x;
-            pos[sp.idx * 3 + 1] = pt.y;
-            pos[sp.idx * 3 + 2] = pt.z;
+            pos[sp.idx * 3] = pt.x; pos[sp.idx * 3 + 1] = pt.y; pos[sp.idx * 3 + 2] = pt.z;
             const f = showS ? Math.sin(sp.t * Math.PI) : 0;
             const p = 0.6 + Math.sin(t * 2.5 + sp.t * 15) * 0.4;
-            col[sp.idx * 3] = 0.55 * f * p;
-            col[sp.idx * 3 + 1] = 0.25 * f * p;
-            col[sp.idx * 3 + 2] = 0.8 * f * p;
+            col[sp.idx * 3] = 0.55 * f * p; col[sp.idx * 3 + 1] = 0.25 * f * p; col[sp.idx * 3 + 2] = 0.8 * f * p;
         }
-        serpPS.geometry.attributes.position.needsUpdate = true;
-        serpPS.geometry.attributes.color.needsUpdate = true;
+        serpPS.geometry.attributes.position.needsUpdate = true; serpPS.geometry.attributes.color.needsUpdate = true;
     }
 
-    // Tunnel particles
+    // Tunnels
     if (tunPS) {
-        const pos = tunPS.geometry.attributes.position.array;
-        const col = tunPS.geometry.attributes.color.array;
+        const pos = tunPS.geometry.attributes.position.array, col = tunPS.geometry.attributes.color.array;
         for (const tp of tunParts) {
             tp.t += tp.spd * tp.dir;
-            if (tp.t > 1) { tp.t = 1; tp.dir = -1; }
-            if (tp.t < 0) { tp.t = 0; tp.dir = 1; }
-            const tn = TUNL[tp.ti];
-            const s1 = byId(tn[0]), s2 = byId(tn[1]);
-            if (!s1 || !s2) continue;
-            const p1 = pos3(s1), p2 = pos3(s2);
-            const lp = new THREE.Vector3().lerpVectors(p1, p2, tp.t);
+            if (tp.t > 1) { tp.t = 1; tp.dir = -1; } if (tp.t < 0) { tp.t = 0; tp.dir = 1; }
+            const tn = TUNL[tp.ti]; const s1 = byId(tn[0]), s2 = byId(tn[1]); if (!s1 || !s2) continue;
+            const lp = new THREE.Vector3().lerpVectors(pos3(s1), pos3(s2), tp.t);
             const sp = Math.sin(tp.t * Math.PI * 4 + t * 3) * 0.3;
             const sa = tp.t * Math.PI * 6 + t * 2;
-            lp.x += Math.cos(sa) * sp;
-            lp.z += Math.sin(sa) * sp;
-            pos[tp.idx * 3] = lp.x;
-            pos[tp.idx * 3 + 1] = lp.y;
-            pos[tp.idx * 3 + 2] = lp.z;
+            lp.x += Math.cos(sa) * sp; lp.z += Math.sin(sa) * sp;
+            pos[tp.idx * 3] = lp.x; pos[tp.idx * 3 + 1] = lp.y; pos[tp.idx * 3 + 2] = lp.z;
             const f = Math.sin(tp.t * Math.PI);
-            const c1 = new THREE.Color(s1.cl), c2 = new THREE.Color(s2.cl);
-            const c = c1.clone().lerp(c2, tp.t);
-            col[tp.idx * 3] = c.r * f * 0.7;
-            col[tp.idx * 3 + 1] = c.g * f * 0.5;
-            col[tp.idx * 3 + 2] = c.b * f * 0.7;
+            const c1 = new THREE.Color(s1.cl), c2 = new THREE.Color(s2.cl), c = c1.clone().lerp(c2, tp.t);
+            col[tp.idx * 3] = c.r * f * 0.5; col[tp.idx * 3 + 1] = c.g * f * 0.4; col[tp.idx * 3 + 2] = c.b * f * 0.5;
         }
-        tunPS.geometry.attributes.position.needsUpdate = true;
-        tunPS.geometry.attributes.color.needsUpdate = true;
+        tunPS.geometry.attributes.position.needsUpdate = true; tunPS.geometry.attributes.color.needsUpdate = true;
     }
 
-    // Field particles
+    // Field
     if (fieldPS) {
-        const pos = fieldPS.geometry.attributes.position.array;
-        const col = fieldPS.geometry.attributes.color.array;
+        const pos = fieldPS.geometry.attributes.position.array, col = fieldPS.geometry.attributes.color.array;
         for (const fp of fieldParts) {
-            fp.theta += fp.ts;
-            fp.phi += fp.ps;
-            fp.yO += fp.ys;
-            if (fp.yO > 7) { fp.yO = 7; fp.ys *= -1; }
-            if (fp.yO < -7) { fp.yO = -7; fp.ys *= -1; }
-            const x = fp.r * Math.cos(fp.theta) * Math.cos(fp.phi);
-            const z = fp.r * Math.sin(fp.theta) * Math.cos(fp.phi);
-            const y = fp.yO;
-            pos[fp.idx * 3] = x;
-            pos[fp.idx * 3 + 1] = y;
-            pos[fp.idx * 3 + 2] = z;
+            fp.theta += fp.ts; fp.phi += fp.ps; fp.yO += fp.ys;
+            if (fp.yO > 7) { fp.yO = 7; fp.ys *= -1; } if (fp.yO < -7) { fp.yO = -7; fp.ys *= -1; }
+            const x = fp.r * Math.cos(fp.theta) * Math.cos(fp.phi), z = fp.r * Math.sin(fp.theta) * Math.cos(fp.phi), y = fp.yO;
+            pos[fp.idx * 3] = x; pos[fp.idx * 3 + 1] = y; pos[fp.idx * 3 + 2] = z;
             let mD = 999, nC = 0xffffff;
-            for (const m of meshes) {
-                const d = Math.sqrt((x - m.position.x) ** 2 + (y - m.position.y) ** 2 + (z - m.position.z) ** 2);
-                if (d < mD) { mD = d; nC = m.userData.cl; }
-            }
-            const nc = new THREE.Color(nC);
-            const br = Math.max(0, 1 - mD / 6) * 0.5;
-            const fl = 0.4 + Math.sin(t * 2 + fp.idx * 0.1) * 0.3;
-            col[fp.idx * 3] = nc.r * br * fl;
-            col[fp.idx * 3 + 1] = nc.g * br * fl;
-            col[fp.idx * 3 + 2] = nc.b * br * fl;
+            for (const m of meshes) { const d = Math.sqrt((x - m.position.x) ** 2 + (y - m.position.y) ** 2 + (z - m.position.z) ** 2); if (d < mD) { mD = d; nC = m.userData.cl; } }
+            const nc = new THREE.Color(nC), br = Math.max(0, 1 - mD / 6) * 0.4, fl = 0.4 + Math.sin(t * 2 + fp.idx * 0.1) * 0.3;
+            col[fp.idx * 3] = nc.r * br * fl; col[fp.idx * 3 + 1] = nc.g * br * fl; col[fp.idx * 3 + 2] = nc.b * br * fl;
         }
-        fieldPS.geometry.attributes.position.needsUpdate = true;
-        fieldPS.geometry.attributes.color.needsUpdate = true;
+        fieldPS.geometry.attributes.position.needsUpdate = true; fieldPS.geometry.attributes.color.needsUpdate = true;
     }
 
-    // Kundalini particles
+    // Kundalini
     if (kunPS && Ly.kun) {
-        const pos = kunPS.geometry.attributes.position.array;
-        const col = kunPS.geometry.attributes.color.array;
-        const kI = P.kint;
+        const pos = kunPS.geometry.attributes.position.array, col = kunPS.geometry.attributes.color.array;
         for (const kp of kunParts) {
-            kp.t += kp.spd * kI * 0.7;
-            if (kp.t > 1) kp.t = 0;
+            kp.t += kp.spd * P.kint * 0.7; if (kp.t > 1) kp.t = 0;
             const y = -6.5 + kp.t * 13;
             let x = 0, z = 0;
-            const coils = 3.5, angle = kp.t * Math.PI * 2 * coils;
-            const r = P.kwid * (0.3 + Math.sin(kp.t * Math.PI) * 0.7);
-            if (kp.channel === 'ida') {
-                x = r * Math.cos(angle + t * 2); z = r * Math.sin(angle + t * 2);
-            } else if (kp.channel === 'pingala') {
-                x = r * Math.cos(angle + Math.PI + t * 2); z = r * Math.sin(angle + Math.PI + t * 2);
-            } else {
-                x = Math.sin(t * 3 + kp.t * 10) * 0.05; z = Math.cos(t * 3 + kp.t * 10) * 0.05;
-            }
-            pos[kp.idx * 3] = x;
-            pos[kp.idx * 3 + 1] = y;
-            pos[kp.idx * 3 + 2] = z;
-
+            const angle = kp.t * Math.PI * 2 * 3.5, r = P.kwid * (0.3 + Math.sin(kp.t * Math.PI) * 0.7);
+            if (kp.channel === 'ida') { x = r * Math.cos(angle + t * 2); z = r * Math.sin(angle + t * 2); }
+            else if (kp.channel === 'pingala') { x = r * Math.cos(angle + Math.PI + t * 2); z = r * Math.sin(angle + Math.PI + t * 2); }
+            else { x = Math.sin(t * 3 + kp.t * 10) * 0.05; z = Math.cos(t * 3 + kp.t * 10) * 0.05; }
+            pos[kp.idx * 3] = x; pos[kp.idx * 3 + 1] = y; pos[kp.idx * 3 + 2] = z;
             const ci = Math.floor(kp.t * (KUNDALINI_COLORS.length - 1));
             const ct = kp.t * (KUNDALINI_COLORS.length - 1) - ci;
             const c1 = new THREE.Color(KUNDALINI_COLORS[ci]);
             const c2 = new THREE.Color(KUNDALINI_COLORS[Math.min(ci + 1, KUNDALINI_COLORS.length - 1)]);
             const c = c1.clone().lerp(c2, ct);
-            const fade = Math.sin(kp.t * Math.PI) * kI * 0.7;
+            const fade = Math.sin(kp.t * Math.PI) * P.kint * 0.7;
             const pulse = 0.6 + Math.sin(t * 4 + kp.t * 15) * 0.4;
-            col[kp.idx * 3] = c.r * fade * pulse;
-            col[kp.idx * 3 + 1] = c.g * fade * pulse;
-            col[kp.idx * 3 + 2] = c.b * fade * pulse;
+            col[kp.idx * 3] = c.r * fade * pulse; col[kp.idx * 3 + 1] = c.g * fade * pulse; col[kp.idx * 3 + 2] = c.b * fade * pulse;
         }
-        kunPS.geometry.attributes.position.needsUpdate = true;
-        kunPS.geometry.attributes.color.needsUpdate = true;
+        kunPS.geometry.attributes.position.needsUpdate = true; kunPS.geometry.attributes.color.needsUpdate = true;
     }
 
-    // Chakra glow animation
+    // Chakra glow
     for (const gm of kunGlowMeshes) {
         if (!gm.userData.chakra) continue;
-        const ch = gm.userData.chakra;
-        const idx = [-6.5, -4.5, -1.5, 0, 1.5, 3.0, 6.5].indexOf(ch.y);
+        const idx = [-6.5, -4.5, -1.5, 0, 1.5, 3.0, 6.5].indexOf(gm.userData.chakra.y);
         const b = Math.sin(t * P.pul * 1.5 + idx * 0.8) * 0.5 + 0.5;
-        const sc = 1 + b * 0.3 * P.kint;
-        gm.scale.setScalar(sc);
-        if (gm.geometry.type === 'TorusGeometry') {
-            gm.material.opacity = 0.1 + b * 0.14 * P.kint;
-        } else {
-            gm.material.opacity = 0.03 + b * 0.05 * P.kint;
-        }
+        gm.scale.setScalar(1 + b * 0.25 * P.kint);
+        if (gm.geometry.type === 'TorusGeometry') gm.material.opacity = 0.08 + b * 0.1 * P.kint;
+        else gm.material.opacity = 0.02 + b * 0.03 * P.kint;
     }
 
-    // Update labels
+    // Labels
     const w = renderer.domElement.clientWidth, h = renderer.domElement.clientHeight;
     for (const ld of nodeLabels) {
-        const p = pos3(ld.s).clone();
-        p.y += 0.55;
-        group.localToWorld(p);
-        p.project(camera);
+        const p = pos3(ld.s).clone(); p.y += 0.5;
+        group.localToWorld(p); p.project(camera);
         ld.div.style.left = (p.x * 0.5 + 0.5) * w + 'px';
         ld.div.style.top = (-p.y * 0.5 + 0.5) * h + 'px';
         const behind = p.z > 1;
         const d = camera.position.distanceTo(pos3(ld.s));
         const fade = Math.max(0, Math.min(1, 1 - (d - 8) / 28));
         const isQ = ld.s.id >= 20, isH = ld.s.id >= 11 && ld.s.id < 20, isD = ld.s.id === 10;
-        ld.div.style.opacity = Lb.nlab ? (behind ? 0 : fade * (isD ? 0.35 : isH ? 0.5 : isQ ? 0.4 : 0.85)) : 0;
+        const baseFade = isD ? 0.35 : isH ? 0.5 : isQ ? 0.4 : 0.9;
+        ld.div.style.opacity = Lb.nlab ? (behind ? 0 : fade * baseFade) : 0;
     }
     for (const pl of pathLabels) {
-        const mp = pl.curve.getPointAt(0.5);
-        group.localToWorld(mp);
-        mp.project(camera);
+        const mp = pl.curve.getPointAt(0.5); group.localToWorld(mp); mp.project(camera);
         pl.div.style.left = (mp.x * 0.5 + 0.5) * w + 'px';
         pl.div.style.top = (-mp.y * 0.5 + 0.5) * h + 'px';
-        pl.div.style.opacity = Lb.plab ? (mp.z > 1 ? 0 : 0.5) : 0;
+        pl.div.style.opacity = Lb.plab ? (mp.z > 1 ? 0 : 0.4) : 0;
     }
 
-    // Update bloom
     bloomPass.strength = P.bloom;
-
     composer.render();
 }
 
@@ -769,136 +784,188 @@ function animate() {
 // INTERACTION
 // ============================================================
 const canvasEl = renderer.domElement;
+let pointerMoved = false;
 
 canvasEl.addEventListener('mousedown', e => {
-    drag = true;
+    drag = true; pointerMoved = false;
     pointerPrev = { x: e.clientX, y: e.clientY };
 });
 canvasEl.addEventListener('mousemove', e => {
-    if (!drag) return;
-    tRy += (e.clientX - pointerPrev.x) * 0.005;
-    tRx += (e.clientY - pointerPrev.y) * 0.005;
-    tRx = Math.max(-1.5, Math.min(1.5, tRx));
-    pointerPrev = { x: e.clientX, y: e.clientY };
-});
-canvasEl.addEventListener('mouseup', () => drag = false);
-canvasEl.addEventListener('mouseleave', () => drag = false);
-canvasEl.addEventListener('wheel', e => {
-    tDist += e.deltaY * 0.015;
-    tDist = Math.max(6, Math.min(50, tDist));
-});
+    if (drag) {
+        const dx = e.clientX - pointerPrev.x, dy = e.clientY - pointerPrev.y;
+        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) pointerMoved = true;
+        tRy += dx * 0.005; tRx += dy * 0.005;
+        tRx = Math.max(-1.5, Math.min(1.5, tRx));
+        pointerPrev = { x: e.clientX, y: e.clientY };
+    }
 
-// Touch
-canvasEl.addEventListener('touchstart', e => {
-    e.preventDefault();
-    drag = true;
-    pointerPrev = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-}, { passive: false });
-canvasEl.addEventListener('touchmove', e => {
-    e.preventDefault();
-    if (!drag) return;
-    tRy += (e.touches[0].clientX - pointerPrev.x) * 0.005;
-    tRx += (e.touches[0].clientY - pointerPrev.y) * 0.005;
-    tRx = Math.max(-1.5, Math.min(1.5, tRx));
-    pointerPrev = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-}, { passive: false });
-canvasEl.addEventListener('touchend', () => drag = false);
-
-// Click on nodes
-let clickStart = { x: 0, y: 0 };
-canvasEl.addEventListener('mousedown', e => { clickStart = { x: e.clientX, y: e.clientY }; });
-canvasEl.addEventListener('mouseup', e => {
-    const dx = e.clientX - clickStart.x, dy = e.clientY - clickStart.y;
-    if (Math.sqrt(dx * dx + dy * dy) > 5) return; // was a drag
+    // Hover detection
     const rect = canvasEl.getBoundingClientRect();
     mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
     const hits = raycaster.intersectObjects(meshes);
-    if (hits.length > 0) {
-        showInfo(hits[0].object.userData);
+    const prev = hoveredNode;
+    hoveredNode = hits.length > 0 ? hits[0].object.userData : null;
+
+    if (hoveredNode !== prev) {
+        applyHighlightState();
+        if (hoveredNode && !selectedNode) showDetail(hoveredNode);
+        else if (!hoveredNode && !selectedNode) clearDetail();
+        canvasEl.style.cursor = hoveredNode ? 'pointer' : 'grab';
     }
 });
-
-function showInfo(s) {
-    const panel = document.getElementById('info-panel');
-    document.getElementById('info-title').textContent = s.nm;
-    document.getElementById('info-hebrew').textContent = `${s.hbh || ''} — ${s.hb}`;
-    document.getElementById('info-desc').textContent = s.desc || '';
-    document.getElementById('info-chakra').textContent = s.chakra ? `Chakra: ${s.chakra}` : '';
-    panel.classList.remove('hidden');
-}
-document.getElementById('info-close').addEventListener('click', () => {
-    document.getElementById('info-panel').classList.add('hidden');
+canvasEl.addEventListener('mouseup', e => {
+    if (!pointerMoved) {
+        // Click
+        const rect = canvasEl.getBoundingClientRect();
+        mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const hits = raycaster.intersectObjects(meshes);
+        if (hits.length > 0) {
+            selectedNode = hits[0].object.userData;
+            hoveredNode = null;
+            showDetail(selectedNode);
+            applyHighlightState();
+        } else {
+            // Click on empty space — deselect
+            selectedNode = null;
+            hoveredNode = null;
+            clearDetail();
+            applyHighlightState();
+        }
+    }
+    drag = false;
 });
+canvasEl.addEventListener('mouseleave', () => {
+    drag = false;
+    if (!selectedNode) {
+        hoveredNode = null;
+        applyHighlightState();
+        clearDetail();
+    }
+});
+canvasEl.addEventListener('wheel', e => {
+    tDist += e.deltaY * 0.015; tDist = Math.max(6, Math.min(50, tDist));
+});
+
+// Touch
+canvasEl.addEventListener('touchstart', e => {
+    e.preventDefault(); drag = true; pointerMoved = false;
+    pointerPrev = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}, { passive: false });
+canvasEl.addEventListener('touchmove', e => {
+    e.preventDefault(); if (!drag) return;
+    pointerMoved = true;
+    tRy += (e.touches[0].clientX - pointerPrev.x) * 0.005;
+    tRx += (e.touches[0].clientY - pointerPrev.y) * 0.005;
+    tRx = Math.max(-1.5, Math.min(1.5, tRx));
+    pointerPrev = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}, { passive: false });
+canvasEl.addEventListener('touchend', () => { drag = false; });
 
 // ============================================================
 // SIDEBAR CONTROLS
 // ============================================================
-
-// Layers
 document.querySelectorAll('[data-layer]').forEach(btn => {
     btn.addEventListener('click', () => {
-        const k = btn.dataset.layer;
-        Ly[k] = !Ly[k];
-        btn.classList.toggle('on', Ly[k]);
-        rebuild();
+        Ly[btn.dataset.layer] = !Ly[btn.dataset.layer];
+        btn.classList.toggle('on', Ly[btn.dataset.layer]);
+        rebuild(); applyHighlightState();
     });
 });
-
-// Labels
 document.querySelectorAll('[data-label]').forEach(btn => {
     btn.addEventListener('click', () => {
-        const k = btn.dataset.label;
-        Lb[k] = !Lb[k];
-        btn.classList.toggle('on', Lb[k]);
-        rebuild();
+        Lb[btn.dataset.label] = !Lb[btn.dataset.label];
+        btn.classList.toggle('on', Lb[btn.dataset.label]);
+        rebuild(); applyHighlightState();
     });
 });
-
-// Flow
 document.querySelectorAll('[data-flow]').forEach(btn => {
     btn.addEventListener('click', () => {
-        const m = btn.dataset.flow;
-        P.flow = m;
-        document.querySelectorAll('[data-flow]').forEach(b => b.classList.toggle('on', b.dataset.flow === m));
+        P.flow = btn.dataset.flow;
+        document.querySelectorAll('[data-flow]').forEach(b => b.classList.toggle('on', b.dataset.flow === P.flow));
     });
 });
-
-// Parameters
 document.querySelectorAll('[data-param]').forEach(input => {
     input.addEventListener('input', () => {
-        const k = input.dataset.param;
-        P[k] = parseFloat(input.value);
-        document.querySelector(`[data-display="${k}"]`).textContent = input.value;
-        if (k === 'rad' || k === 'hlx' || k === 'kwid') rebuild();
+        P[input.dataset.param] = parseFloat(input.value);
+        document.querySelector(`[data-display="${input.dataset.param}"]`).textContent = input.value;
+        if (['rad', 'hlx', 'kwid'].includes(input.dataset.param)) { rebuild(); applyHighlightState(); }
     });
 });
-
-// Views
 document.querySelectorAll('[data-view]').forEach(btn => {
     btn.addEventListener('click', () => {
-        const m = btn.dataset.view;
-        document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === m));
-        if (m === 'top') { tRx = 1.5; tDist = 30; }
-        else if (m === 'sid') { tRx = 0; tDist = 24; }
+        document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === btn.dataset.view));
+        if (btn.dataset.view === 'top') { tRx = 1.5; tDist = 30; }
+        else if (btn.dataset.view === 'sid') { tRx = 0; tDist = 24; }
         else { tRx = 0.15; tDist = 24; }
     });
 });
 
-// Mobile toggle
+// Collapsible sections
+document.querySelectorAll('.section-toggle').forEach(el => {
+    el.addEventListener('click', () => {
+        const section = document.getElementById(el.dataset.toggle);
+        if (section) section.classList.toggle('collapsed');
+    });
+});
+
+// Mobile
 document.getElementById('mobile-toggle').addEventListener('click', () => {
     document.getElementById('sidebar').classList.toggle('open');
+});
+
+// ============================================================
+// SEARCH
+// ============================================================
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+const allNodes = [...MAN, ...HID, ...QLP];
+
+searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q) { searchResults.classList.add('hidden'); searchResults.innerHTML = ''; return; }
+
+    const matches = allNodes.filter(n =>
+        n.nm.toLowerCase().includes(q) || n.hb.toLowerCase().includes(q) ||
+        (n.hbh && n.hbh.includes(q)) || (n.desc && n.desc.toLowerCase().includes(q))
+    ).slice(0, 8);
+
+    if (matches.length === 0) { searchResults.classList.add('hidden'); return; }
+
+    searchResults.classList.remove('hidden');
+    searchResults.innerHTML = matches.map(n =>
+        `<div class="search-result" data-search-id="${n.id}"><span>${n.nm}</span><span class="sr-heb">${n.hb}</span></div>`
+    ).join('');
+
+    searchResults.querySelectorAll('.search-result').forEach(el => {
+        el.addEventListener('click', () => {
+            const node = byId(parseInt(el.dataset.searchId));
+            if (node) {
+                selectedNode = node; hoveredNode = null;
+                showDetail(node); applyHighlightState();
+                searchInput.value = '';
+                searchResults.classList.add('hidden');
+                searchResults.innerHTML = '';
+            }
+        });
+    });
+});
+
+searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        searchInput.value = ''; searchResults.classList.add('hidden'); searchResults.innerHTML = '';
+        searchInput.blur();
+    }
 });
 
 // Resize
 window.addEventListener('resize', () => {
     const w = container.clientWidth, h = container.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-    composer.setSize(w, h);
-    bloomPass.resolution.set(w, h);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+    renderer.setSize(w, h); composer.setSize(w, h); bloomPass.resolution.set(w, h);
 });
 
 // ============================================================
