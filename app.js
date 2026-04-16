@@ -72,6 +72,66 @@ const QPTH = [[20, 21], [20, 22], [20, 25], [21, 22], [21, 23], [21, 25], [22, 2
 const TUNL = [[0, 20], [1, 21], [2, 22], [3, 23], [4, 24], [5, 25], [6, 26], [7, 27], [8, 28], [9, 29]];
 const KUNDALINI_COLORS = [0xdd2222, 0xff6622, 0xccaa22, 0x33cc55, 0x4444dd, 0x6622aa, 0xcc88ff];
 
+// Enriched path correspondences (Golden Dawn tradition)
+const PATH_CORR = [
+    { from: 0, to: 1, let: "א", nm: "Aleph", mn: "Ox", tarot: "The Fool", attr: "Air", type: "Mother", desc: "The breath before creation — pure potential leaping into the void. The path between Crown and Wisdom carries the silent exhalation that precedes all thought." },
+    { from: 0, to: 2, let: "ב", nm: "Beth", mn: "House", tarot: "The Magician", attr: "Mercury", type: "Double", desc: "The architect's first line — consciousness organizing itself into structure. Mercury's swiftness bridges divine will and the womb of form." },
+    { from: 0, to: 5, let: "ג", nm: "Gimel", mn: "Camel", tarot: "High Priestess", attr: "Moon", type: "Double", desc: "The longest path on the tree — crossing the Abyss from Crown to Beauty. The camel carries the soul across the desert of Da'at, guided by lunar intuition." },
+    { from: 1, to: 2, let: "ד", nm: "Daleth", mn: "Door", tarot: "The Empress", attr: "Venus", type: "Double", desc: "The door between the supernal father and mother. Venus unites Wisdom and Understanding in the creative act that births all lower emanation." },
+    { from: 1, to: 5, let: "ה", nm: "Heh", mn: "Window", tarot: "The Emperor", attr: "Aries", type: "Simple", desc: "A window from above — Wisdom's fire descends through martial structure to illuminate the Heart. Aries initiates the downward flash." },
+    { from: 1, to: 3, let: "ו", nm: "Vav", mn: "Nail", tarot: "The Hierophant", attr: "Taurus", type: "Simple", desc: "The nail that joins — Wisdom fastened to Mercy along the right pillar. Taurus grounds the flash of insight into enduring grace." },
+    { from: 2, to: 5, let: "ז", nm: "Zayin", mn: "Sword", tarot: "The Lovers", attr: "Gemini", type: "Simple", desc: "The sword of discrimination — Understanding cuts through illusion to reach the Heart. Gemini's duality resolved in the choice of the Lovers." },
+    { from: 2, to: 4, let: "ח", nm: "Cheth", mn: "Fence", tarot: "The Chariot", attr: "Cancer", type: "Simple", desc: "The protective enclosure — Understanding's womb channels its restrictive power into Severity. Cancer's shell guards the warrior within." },
+    { from: 3, to: 4, let: "ט", nm: "Teth", mn: "Serpent", tarot: "Strength", attr: "Leo", type: "Simple", desc: "The serpent coiled between Mercy and Severity. Leo's courage tames the beast — not by force but by the gentle hand of love meeting discipline." },
+    { from: 3, to: 5, let: "י", nm: "Yod", mn: "Hand", tarot: "The Hermit", attr: "Virgo", type: "Simple", desc: "The hand of God — the smallest letter containing infinite power. Mercy reaches toward Beauty in solitary contemplation, lamp held high." },
+    { from: 3, to: 6, let: "כ", nm: "Kaph", mn: "Palm", tarot: "Wheel of Fortune", attr: "Jupiter", type: "Double", desc: "The open palm of Jupiter — Mercy's abundance pours downward to Victory. The wheel turns, and what was given above manifests below." },
+    { from: 4, to: 5, let: "ל", nm: "Lamed", mn: "Ox-goad", tarot: "Justice", attr: "Libra", type: "Simple", desc: "The ox-goad drives toward balance — Severity's judgment refined into the harmonious scales of the Heart. Libra weighs all things equally." },
+    { from: 4, to: 7, let: "מ", nm: "Mem", mn: "Water", tarot: "The Hanged Man", attr: "Water", type: "Mother", desc: "The great waters — Severity dissolves into Splendor through sacrifice and surrender. The Hanged Man sees the world inverted, and in inversion finds truth." },
+    { from: 5, to: 6, let: "נ", nm: "Nun", mn: "Fish", tarot: "Death", attr: "Scorpio", type: "Simple", desc: "The fish in deep waters — Beauty transforms through death into Victory's endurance. Scorpio strips away the false to reveal what cannot die." },
+    { from: 5, to: 8, let: "ס", nm: "Samekh", mn: "Support", tarot: "Temperance", attr: "Sagittarius", type: "Simple", desc: "The tent-pole of the soul — the central column from Heart to Foundation. Sagittarius aims the arrow of aspiration straight down the middle pillar." },
+    { from: 5, to: 7, let: "ע", nm: "Ayin", mn: "Eye", tarot: "The Devil", attr: "Capricorn", type: "Simple", desc: "The eye that sees bondage — Beauty confronts Splendor's intellectual traps. Capricorn's ambition can chain or liberate; the Devil laughs either way." },
+    { from: 6, to: 7, let: "פ", nm: "Peh", mn: "Mouth", tarot: "The Tower", attr: "Mars", type: "Double", desc: "The mouth that speaks destruction — Mars shatters the false tower between Victory and Splendor. What lightning demolishes, truth rebuilds." },
+    { from: 6, to: 8, let: "צ", nm: "Tzadi", mn: "Fishhook", tarot: "The Star", attr: "Aquarius", type: "Simple", desc: "The hook that draws up — Victory's endurance pulls from Foundation's deep waters. Aquarius pours starlight into the vessel of the soul." },
+    { from: 6, to: 9, let: "ק", nm: "Qoph", mn: "Back of head", tarot: "The Moon", attr: "Pisces", type: "Simple", desc: "The back of the skull — what cannot be seen directly. Victory descends to the Kingdom through dreams, illusion, and the treacherous moonlit path." },
+    { from: 7, to: 8, let: "ר", nm: "Resh", mn: "Head", tarot: "The Sun", attr: "Sun", type: "Double", desc: "The head illuminated — Splendor's mental clarity blazes into Foundation. The Sun reveals all; nothing hides in its light." },
+    { from: 7, to: 9, let: "ש", nm: "Shin", mn: "Tooth/Fire", tarot: "Judgement", attr: "Fire", type: "Mother", desc: "The triple flame — Splendor's fire descends to awaken the Kingdom. Shin's three prongs are the three mother letters made manifest. The dead rise." },
+    { from: 8, to: 9, let: "ת", nm: "Tav", mn: "Mark/Cross", tarot: "The World", attr: "Saturn", type: "Double", desc: "The final seal — Foundation crystallizes into Kingdom. Saturn marks the boundary between the astral and the physical. The dancer completes the circle." },
+];
+
+// Tunnel descriptions (Qliphothic mirror paths)
+const TUNNEL_DESC = {
+    '0-20': 'The mirror of Crown in the shells — unity split into warring duality. Where Keter radiates oneness, Thaumiel tears it apart.',
+    '1-21': 'Wisdom\'s shadow — the flash of insight blocked, distorted into confusion. Ghagiel obstructs the flow of creative force.',
+    '2-22': 'Understanding veiled — Satariel conceals what Binah reveals. The mother\'s womb becomes a tomb of hidden meaning.',
+    '3-23': 'Mercy devoured — Gamchicoth corrupts generosity into possessive hunger. What Chesed gives freely, its shadow consumes.',
+    '4-24': 'Severity\'s fire without purpose — Golachab burns without wisdom. Gevurah\'s necessary discipline becomes cruelty unmoored.',
+    '5-25': 'Beauty in eternal argument — Thagirion disputes what Tiferet harmonizes. The heart\'s balance shattered into perpetual conflict.',
+    '6-26': 'Victory scattered — A\'arab Zaraq disperses what Netzach gathers. The ravens of dispersion tear endurance apart.',
+    '7-27': 'Splendor poisoned — Samael weaponizes Hod\'s intellect. Brilliant analysis becomes toxic when divorced from compassion.',
+    '8-28': 'Foundation corrupted — Gamaliel pollutes Yesod\'s dreams with obscene illusion. The astral mirror darkens.',
+    '9-29': 'Kingdom in exile — Lilith severs Malkuth from its source. The manifest world estranged, wandering in the night.',
+};
+
+// Pillar data
+const PILLARS = [
+    { name: 'Pillar of Mercy (Right)', alias: 'Expansion · Masculine · Chokmah Pillar', desc: 'The right pillar represents the outpouring force — unbounded generosity, creative expansion, and the active masculine principle. In yoga it corresponds to Pingala, the solar channel. It is the right hand of God extended to draw the faithful near.', nodes: [1, 3, 6], color: '#5588cc' },
+    { name: 'Pillar of Severity (Left)', alias: 'Restriction · Feminine · Binah Pillar', desc: 'The left pillar represents the constraining force — necessary form, discipline, and the receptive feminine principle. In yoga it corresponds to Ida, the lunar channel. It is the left hand that shapes and limits, giving definition to the infinite.', nodes: [2, 4, 7], color: '#bb2244' },
+    { name: 'Middle Pillar (Equilibrium)', alias: 'Balance · Non-duality · Sushumna', desc: 'The central column reconciles all opposites — the spine of the tree, the path of balance. From Keter through Da\'at, Tiferet, Yesod to Malkuth, it traces the direct route of consciousness. In yoga it is Sushumna, the channel through which Kundalini rises.', nodes: [0, 10, 5, 8, 9], color: '#ccaa22' },
+    { name: 'Back Pillar (Hidden)', alias: 'The Unseen · The Unconscious', desc: 'The hidden pillar exists behind the manifest tree — the back of the body of God. These concealed sephirot operate below the threshold of awareness, representing wisdom, mercy, and victory that move without being seen or claimed.', nodes: [11, 12, 13], color: '#335577' },
+];
+
+// Hidden path descriptions
+const HIDDEN_DESC = [
+    { from: 0, to: 11, desc: 'Crown to Hidden Wisdom — the first emanation passes behind the veil, seeding unconscious knowing.' },
+    { from: 11, to: 12, desc: 'Hidden Wisdom to Hidden Mercy — silent knowing descends into silent grace along the back pillar.' },
+    { from: 12, to: 5, desc: 'Hidden Mercy to Beauty — the unseen grace surfaces at the Heart, where it can finally be felt.' },
+    { from: 12, to: 13, desc: 'Hidden Mercy to Hidden Victory — grace flows downward into quiet persistence.' },
+    { from: 13, to: 8, desc: 'Hidden Victory to Foundation — endurance in the dark connects to the astral bridge.' },
+    { from: 13, to: 9, desc: 'Hidden Victory to Kingdom — the back pillar\'s lowest reach, persistence that touches the earth.' },
+    { from: 11, to: 1, desc: 'Hidden Wisdom to Wisdom — the unconscious and conscious flash of insight are secretly linked.' },
+    { from: 11, to: 2, desc: 'Hidden Wisdom to Understanding — what is known without knowing informs the structure of the mother.' },
+];
+
 // ============================================================
 // CONNECTION MAP — which nodes connect to which, and via which paths
 // ============================================================
@@ -585,6 +645,9 @@ function showDetail(s) {
     document.getElementById('detail-desc').textContent = s.desc || '';
     document.getElementById('detail-chakra').textContent = s.chakra ? `Chakra: ${s.chakra}` : '';
 
+    // Update knowledge drawer context
+    if (typeof setDrawerContext === 'function') setDrawerContext(s);
+
     // Show connections
     const conn = connectionMap[s.id];
     if (conn && conn.connected.size > 0) {
@@ -609,6 +672,7 @@ function showDetail(s) {
 function clearDetail() {
     document.getElementById('detail-empty').style.display = 'flex';
     document.getElementById('detail-content').classList.add('hidden');
+    if (typeof setDrawerContext === 'function') setDrawerContext(null);
 }
 
 // ============================================================
@@ -969,7 +1033,198 @@ window.addEventListener('resize', () => {
 });
 
 // ============================================================
+// KNOWLEDGE DRAWER
+// ============================================================
+const drawer = document.getElementById('knowledge-drawer');
+const drawerHandle = document.getElementById('drawer-handle');
+const drawerTitle = document.getElementById('drawer-title');
+const drawerContent = document.getElementById('drawer-content');
+let activeTab = 'paths';
+let drawerNodeContext = null; // which node to show context for
+
+drawerHandle.addEventListener('click', () => {
+    drawer.classList.toggle('collapsed');
+});
+
+document.querySelectorAll('.drawer-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+        activeTab = btn.dataset.tab;
+        document.querySelectorAll('.drawer-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === activeTab));
+        renderDrawer();
+    });
+});
+
+function setDrawerContext(node) {
+    drawerNodeContext = node;
+    if (node) {
+        drawerTitle.textContent = `${node.nm} — Connections`;
+    } else {
+        drawerTitle.textContent = 'Connections & Correspondences';
+    }
+    renderDrawer();
+}
+
+function renderDrawer() {
+    switch (activeTab) {
+        case 'paths': renderPaths(); break;
+        case 'pillars': renderPillars(); break;
+        case 'tunnels': renderTunnels(); break;
+        case 'hidden': renderHidden(); break;
+        case 'overview': renderOverview(); break;
+    }
+}
+
+function renderPaths() {
+    let paths = PATH_CORR;
+    let contextHTML = '';
+    if (drawerNodeContext) {
+        const id = drawerNodeContext.id;
+        paths = PATH_CORR.filter(p => p.from === id || p.to === id);
+        if (paths.length === 0) {
+            drawerContent.innerHTML = `<div class="drawer-context">No manifest paths connect to <span class="ctx-accent">${drawerNodeContext.nm}</span></div><p style="font-size:11px;color:var(--color-text-faint)">Try the Tunnels or Hidden tabs for this node's connections.</p>`;
+            return;
+        }
+        contextHTML = `<div class="drawer-context">Paths through <span class="ctx-accent">${drawerNodeContext.nm}</span></div>`;
+    }
+    drawerContent.innerHTML = contextHTML + paths.map(p => {
+        const fromN = byId(p.from), toN = byId(p.to);
+        return `<div class="path-card">
+            <div><div class="path-letter">${p.let}</div><div class="path-letter-name">${p.nm}</div></div>
+            <div class="path-info">
+                <h4>${p.mn}<span class="path-connects">${fromN ? fromN.nm : '?'} → ${toN ? toN.nm : '?'}</span></h4>
+                <div class="path-meta">
+                    <span class="path-tag tarot">${p.tarot}</span>
+                    <span class="path-tag element">${p.attr}</span>
+                    <span class="path-tag type">${p.type}</span>
+                </div>
+                <p style="font-size:10px;color:var(--color-text-faint);line-height:1.55;margin-top:4px">${p.desc}</p>
+            </div>
+        </div>`;
+    }).join('');
+    wireDrawerNodeClicks();
+}
+
+function renderPillars() {
+    let pillars = PILLARS;
+    let contextHTML = '';
+    if (drawerNodeContext) {
+        const id = drawerNodeContext.id;
+        pillars = PILLARS.filter(p => p.nodes.includes(id));
+        if (pillars.length > 0) {
+            contextHTML = `<div class="drawer-context"><span class="ctx-accent">${drawerNodeContext.nm}</span> belongs to:</div>`;
+        }
+    }
+    drawerContent.innerHTML = contextHTML + pillars.map(p => {
+        const nodeChips = p.nodes.map(nid => {
+            const n = byId(nid);
+            const c = n ? '#' + n.cl.toString(16).padStart(6, '0') : '#666';
+            return `<span class="pillar-node" data-node-id="${nid}" style="color:${c};border-color:${c}33">${n ? n.nm : '?'}</span>`;
+        }).join('');
+        return `<div class="pillar-section">
+            <div class="pillar-header" style="color:${p.color}">${p.name}</div>
+            <div style="font-size:10px;color:var(--color-text-faint);margin-bottom:4px">${p.alias}</div>
+            <div class="pillar-desc">${p.desc}</div>
+            <div class="pillar-nodes">${nodeChips}</div>
+        </div>`;
+    }).join('');
+    wireDrawerNodeClicks();
+}
+
+function renderTunnels() {
+    let tunnels = TUNL;
+    let contextHTML = '';
+    if (drawerNodeContext) {
+        const id = drawerNodeContext.id;
+        tunnels = TUNL.filter(t => t[0] === id || t[1] === id);
+        if (tunnels.length === 0) {
+            drawerContent.innerHTML = `<div class="drawer-context">No tunnels connect to <span class="ctx-accent">${drawerNodeContext.nm}</span></div><p style="font-size:11px;color:var(--color-text-faint)">Tunnels link each Sephirah to its Qliphothic shadow (e.g. Keter ↔ Thaumiel).</p>`;
+            return;
+        }
+        contextHTML = `<div class="drawer-context">Tunnels from <span class="ctx-accent">${drawerNodeContext.nm}</span></div>`;
+    }
+    drawerContent.innerHTML = contextHTML + tunnels.map(t => {
+        const light = byId(t[0]), dark = byId(t[1]);
+        const key = `${t[0]}-${t[1]}`;
+        const desc = TUNNEL_DESC[key] || '';
+        return `<div class="tunnel-card">
+            <div class="tunnel-light"><span class="pillar-node" data-node-id="${t[0]}">${light ? light.nm : '?'}</span></div>
+            <div class="tunnel-arrow">◇ tunnel ◇</div>
+            <div class="tunnel-dark"><span class="pillar-node" data-node-id="${t[1]}" style="color:rgba(180,80,80,0.9);border-color:rgba(180,80,80,0.2)">${dark ? dark.nm : '?'}</span></div>
+            ${desc ? `<div class="tunnel-desc">${desc}</div>` : ''}
+        </div>`;
+    }).join('');
+    wireDrawerNodeClicks();
+}
+
+function renderHidden() {
+    let paths = HIDDEN_DESC;
+    let contextHTML = '';
+    if (drawerNodeContext) {
+        const id = drawerNodeContext.id;
+        paths = HIDDEN_DESC.filter(h => h.from === id || h.to === id);
+        if (paths.length === 0) {
+            drawerContent.innerHTML = `<div class="drawer-context">No hidden paths connect to <span class="ctx-accent">${drawerNodeContext.nm}</span></div><p style="font-size:11px;color:var(--color-text-faint)">Hidden paths run along the back pillar, connecting the concealed sephirot.</p>`;
+            return;
+        }
+        contextHTML = `<div class="drawer-context">Hidden paths through <span class="ctx-accent">${drawerNodeContext.nm}</span></div>`;
+    }
+    drawerContent.innerHTML = contextHTML + paths.map(h => {
+        const fromN = byId(h.from), toN = byId(h.to);
+        return `<div class="tunnel-card">
+            <div class="tunnel-light"><span class="pillar-node" data-node-id="${h.from}">${fromN ? fromN.nm : '?'}</span></div>
+            <div class="tunnel-arrow">· · ·</div>
+            <div class="tunnel-dark" style="color:rgba(100,160,200,0.9)"><span class="pillar-node" data-node-id="${h.to}" style="color:rgba(100,160,200,0.9);border-color:rgba(100,160,200,0.2)">${toN ? toN.nm : '?'}</span></div>
+            <div class="tunnel-desc">${h.desc}</div>
+        </div>`;
+    }).join('');
+    wireDrawerNodeClicks();
+}
+
+function renderOverview() {
+    drawerContent.innerHTML = `
+        <div class="overview-section">
+            <h4>The Tree of Life (Etz Chaim)</h4>
+            <p>A diagram of divine emanation — ten sephirot (vessels of light) connected by twenty-two paths (Hebrew letters). Together they map the process by which the infinite becomes finite, the unmanifest becomes manifest. Every sephirah is a state of consciousness; every path is a transformation between states.</p>
+        </div>
+        <div class="overview-section">
+            <h4>The 22 Paths</h4>
+            <p>Each path corresponds to one of the 22 Hebrew letters, a Tarot Major Arcana card, and an astrological or elemental attribution. The three Mother letters (Aleph, Mem, Shin) carry the primal elements: Air, Water, Fire. The seven Double letters carry planetary forces. The twelve Simple letters carry zodiacal energies. Together they form the experiential bridges between states of being.</p>
+        </div>
+        <div class="overview-section">
+            <h4>The Three Pillars</h4>
+            <p>The tree divides into three vertical columns. The right Pillar of Mercy (Chokmah, Chesed, Netzach) represents expansion and the masculine principle — Pingala in yoga. The left Pillar of Severity (Binah, Gevurah, Hod) represents restriction and the feminine — Ida. The Middle Pillar (Keter, Da'at, Tiferet, Yesod, Malkuth) is Sushumna, the path of balance through which Kundalini rises.</p>
+        </div>
+        <div class="overview-section">
+            <h4>The Qliphoth & Tunnels</h4>
+            <p>The Tree of Night mirrors the Tree of Life — ten shells (Qliphoth) that represent the shadows and distortions of each sephirah. The Tunnels of Set are 22 dark paths connecting these shells, corresponding inversely to the paths of light. Named after the Egyptian god Set in the Typhonian tradition, they represent the unconscious, destructive, and transformative forces that exist behind the manifest tree.</p>
+        </div>
+        <div class="overview-section">
+            <h4>The Hidden Sephirot</h4>
+            <p>Behind the visible tree lies a fourth pillar — the Back Pillar. Three concealed sephirot (Chokmah Stumah, Chesed Stumah, Netzach Stumah) operate below the threshold of awareness. They represent the hidden aspects of wisdom, mercy, and endurance — forces that move through us without being recognized. Da'at, the hidden eleventh sephirah, marks the Abyss between the supernal triad and the lower tree.</p>
+        </div>
+        <div class="overview-section">
+            <h4>Kundalini & the Central Pillar</h4>
+            <p>The serpent fire (Kundalini) rises through the central channel — from Malkuth (Root/Muladhara) through Yesod (Sacral/Svadhisthana), Tiferet (Heart/Anahata), Da'at (Third Eye/Ajna), to Keter (Crown/Sahasrara). The twin helices of Ida and Pingala wind around this axis, mirroring the caduceus. Their union at each chakra activates the corresponding sephirah.</p>
+        </div>
+    `;
+}
+
+function wireDrawerNodeClicks() {
+    drawerContent.querySelectorAll('.pillar-node[data-node-id]').forEach(el => {
+        el.addEventListener('click', () => {
+            const n = byId(parseInt(el.dataset.nodeId));
+            if (n) {
+                selectedNode = n; hoveredNode = null;
+                showDetail(n); applyHighlightState();
+                setDrawerContext(n);
+            }
+        });
+    });
+}
+
+// ============================================================
 // INIT
 // ============================================================
 rebuild();
 animate();
+renderDrawer();

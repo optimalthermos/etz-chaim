@@ -166,6 +166,25 @@
         <main id="canvas-wrap">
             <canvas id="three-canvas"></canvas>
             <div id="labels-container"></div>
+
+            <!-- KNOWLEDGE DRAWER -->
+            <div id="knowledge-drawer" class="collapsed">
+                <div id="drawer-handle">
+                    <div class="handle-bar"></div>
+                    <span id="drawer-title">Connections &amp; Correspondences</span>
+                    <svg class="drawer-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 15 12 9 18 15"/></svg>
+                </div>
+                <div id="drawer-body">
+                    <div id="drawer-tabs">
+                        <button class="drawer-tab active" data-tab="paths">22 Paths</button>
+                        <button class="drawer-tab" data-tab="pillars">Pillars</button>
+                        <button class="drawer-tab" data-tab="tunnels">Tunnels</button>
+                        <button class="drawer-tab" data-tab="hidden">Hidden</button>
+                        <button class="drawer-tab" data-tab="overview">Overview</button>
+                    </div>
+                    <div id="drawer-content"></div>
+                </div>
+            </div>
         </main>
     </div>
 
